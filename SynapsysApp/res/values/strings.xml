@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Synapsys</string>
+    <string name="title_activity_main">MainActivity</string>
+    
+    <string name="title_home_section">Home</string>
+    <string name="title_usb_section">USB Connection</string>
+    <string name="title_wireless_section">Wireless Connection</string>
+    <string name="title_setting_section">Settings</string>
+    
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    
+    <string name="action_example">Example action</string>
+    <string name="action_settings">Settings</string>
+
+</resources>
