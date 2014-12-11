@@ -150,4 +150,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		actionBar.setTitle(mTitle);
 	}
 
+	public NavigationDrawerFragment getNavigationDrawerFragment() {
+		return mNavigationDrawerFragment;
+	}
 }
