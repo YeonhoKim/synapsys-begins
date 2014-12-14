@@ -28,4 +28,10 @@ public class SynapsysApplication extends Application {
 		super.onTerminate();
 		
 	}
+	
+	public boolean checkUSBConnected() {
+		// TODO : UsbManager / NetworkState
+		return false;
+	}
+	
 }

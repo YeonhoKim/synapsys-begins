@@ -11,16 +11,17 @@ import android.content.res.Configuration;
 import android.os.IBinder;
 
 /**
- * PC·ÎºÎÅÍ ½ºÆ®¸®¹ÖÀ» ¹Ş¾Æ È­¸éÀ» Ãâ·ÂÇØÁÖ´Â Activity.
+ * PCë¡œë¶€í„° ìŠ¤íŠ¸ë¦¬ë°ì„ ë°›ì•„ í™”ë©´ì„ ì¶œë ¥í•´ì£¼ëŠ” Activity.
  *  
  * @author Yeonho.Kim
  *
  */
 public class StreamingInflowService extends Service implements Runnable {
-	
+
 	public static final int PORT = 1113;
 	private static final int TIMEOUT = 10 * 1000; 	// ms
 	
+	private StreamingInflowBinder mBinder;
 	private Thread mInflowThread;
 
 	/**
@@ -28,10 +29,10 @@ public class StreamingInflowService extends Service implements Runnable {
 	 */
 	private Socket mClientSocket;
 	
-	
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
 	}
 	
 	@Override
@@ -45,8 +46,12 @@ public class StreamingInflowService extends Service implements Runnable {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
-		return null;
+		synchronized (StreamingInflowService.this) {
+			if (mBinder == null)
+				mBinder = new StreamingInflowBinder(this);
+			
+			return mBinder.asBinder();
+		}
 	}
 
 	@Override
@@ -66,6 +71,22 @@ public class StreamingInflowService extends Service implements Runnable {
 	public void run() {
 		
 			
+	}
+	
+	void connect() {
+		// TODO : 
+	}
+	
+	void resume() {
+		// TODO :
+	}
+	
+	void pause() {
+		// TODO :
+	}
+	
+	void disconnect() {
+		// TODO :
 	}
 	
 	

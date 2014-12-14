@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.os.IBinder;
 
 /**
- * Android의 화면을 PC로 스트리밍 출력하는 Service.
+ * 
  * 
  * @author Yeonho.Kim
  *
  */
-public class StreamingOutflowService extends Service {
+public class _StreamingOutflowService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {

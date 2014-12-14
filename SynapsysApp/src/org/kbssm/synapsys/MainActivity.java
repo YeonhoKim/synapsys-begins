@@ -69,7 +69,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	                UsbAccessory accessory =(UsbAccessory) intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
 	                if(intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,false)){
 	                    if(accessory !=null){
-	                        //¾×¼¼¼­¿Í Åë½ÅÇÏ±â À§ÇÑ ¼³Á¤ ÄÚµå
+	                        //ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½
 	                    }
 	                }
 	                else{
@@ -153,4 +153,5 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	public NavigationDrawerFragment getNavigationDrawerFragment() {
 		return mNavigationDrawerFragment;
 	}
+	
 }

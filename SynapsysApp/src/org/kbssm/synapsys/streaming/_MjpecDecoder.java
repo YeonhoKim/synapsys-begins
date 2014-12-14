@@ -28,15 +28,15 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class MjpecDecoder {
+public class _MjpecDecoder {
 
 	public static class MjpegView extends SurfaceView implements
 			SurfaceHolder.Callback {
 		public final static int POSITION_UPPER_LEFT = 9;
-		public final static int POSITION_UPPER_RIGHT = 3;
 		public final static int POSITION_LOWER_LEFT = 12;
 		public final static int POSITION_LOWER_RIGHT = 6;
 
+		public final static int POSITION_UPPER_RIGHT = 3;
 		public final static int SIZE_STANDARD = 1;
 		public final static int SIZE_BEST_FIT = 4;
 		public final static int SIZE_FULLSCREEN = 8;
