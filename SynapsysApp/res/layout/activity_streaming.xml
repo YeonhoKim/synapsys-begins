@@ -3,10 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <org.kbssm.synapsys.streaming.StreamingView
+    <!-- <org.kbssm.synapsys.streaming.StreamingView
         android:id="@+id/streaming_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" /> -->
+    
+    <org.kbssm.synapsys.streaming.MjpegView 
+        android:id="@+id/streaming_mjpeg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <SlidingDrawer
         android:id="@+id/sliding_drawer"

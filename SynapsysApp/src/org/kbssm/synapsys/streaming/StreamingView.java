@@ -5,6 +5,8 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Properties;
 
 import android.content.Context;
@@ -21,6 +23,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 /**
  * Streaming Surface View.
@@ -37,6 +40,9 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 	public final static int POSITION_UPPER_LEFT = 9;
 	public final static int POSITION_LOWER_LEFT = 12;
 	public final static int POSITION_LOWER_RIGHT = 6;
+
+	public static final int INFLOW_PORT = 1113;
+	private static final int TIMEOUT = 10 * 1000; 	// ms
 	
 	public StreamingView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -50,7 +56,7 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 	private int mDisplayHeight;
 	private int mDisplayMode;
 	
-	private StreamingThread mThread;
+	private StreamingThread1 mThread;
 	private FrameInputStreaming mInputStreaming;
 	private boolean isRunning;
 	private boolean isSurfaceReady;
@@ -67,7 +73,7 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 		SurfaceHolder holder = getHolder();
 		holder.addCallback(this);
 		
-		mThread = new StreamingThread(holder);
+		mThread = new StreamingThread1(holder);
 		setFocusable(true);
 		if (!resume) {
 			resume = true;
@@ -86,11 +92,45 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 			Log.i("AppLog", "init");
 		}
 	}
+	
+	private DatagramSocket mInflowSocket;
+	private StreamingThread mStreamingThread;
+	
+	public void startStreaming() {
+		try {
+			mInflowSocket = new DatagramSocket(INFLOW_PORT);
+			mInflowSocket.setSoTimeout(TIMEOUT);
+			
+			//mStreamingThread = new MjpegStreaming.InflowThread(mInflowSocket, this);
+			//mStreamingThread.start();
+			
+			isRunning = true;
+			mThread.setSurfaceSize(getWidth(), getHeight());
+			mThread.start();
+			
+		} catch(SocketException e) {
+			Toast.makeText(getContext(), "Streaming socket failed. ", Toast.LENGTH_SHORT).show();
+			mInflowSocket = null;
+		}
+	}
+	
+	public void stopStreaming() {
+		try {
+			if (mStreamingThread != null)
+				mStreamingThread.close();	// TODO : 
+			
+			if (mInflowSocket != null)
+				mInflowSocket.close();
+			
+		} catch (Exception e) {
+			
+		}
+	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
-		
+		isSurfaceReady = true;
 	}
 
 	@Override
@@ -105,12 +145,24 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 		
 	}
 
+	public int getDisplayMode() {
+		return mDisplayMode;
+	}
+	
+	public int getDisplayWidth() {
+		return mDisplayWidth;
+	}
+	
+	public int getDisplayHeight() {
+		return mDisplayHeight;
+	}
+	
 	/**
 	 * 
 	 * @author Yeonho.Kim
 	 *
 	 */
-	private class StreamingThread extends Thread {
+	private class StreamingThread1 extends Thread {
 		
 		private SurfaceHolder mSurfaceHolder;
 		private long mStartTime;
@@ -118,7 +170,7 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 		private Bitmap ovl;
 		private int frameCounter = 0;
 		
-		public StreamingThread(SurfaceHolder holder) {
+		public StreamingThread1(SurfaceHolder holder) {
 			mSurfaceHolder = holder;
 		}
 		
@@ -305,4 +357,5 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 					frameData));
 		}
 	}
+	
 }

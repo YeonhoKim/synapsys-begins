@@ -1,17 +1,13 @@
 package org.kbssm.synapsys.streaming;
 
-import java.net.DatagramSocket;
+import java.net.Socket;
 
 import org.kbssm.synapsys.R;
+import org.kbssm.synapsys.streaming._MjpecDecoder.MjpegInputStream;
 
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
+import android.view.WindowManager;
 
 /**
  * 
@@ -20,40 +16,13 @@ import android.os.RemoteException;
  */
 public class StreamingInflowActivity extends Activity {
 
-
-	private IStreamingInflowBridge mBridge;
-	private DatagramSocket mInflowSocket;
-
-	
-	/**
-	 * {@link StreamingInflowService}에 연결하여, 
-	 * 성공시 {@link IStreamingInflowBridge}를 전달받아 
-	 * 통신데이터를 컨트롤 한다.
-	 */
-	private final ServiceConnection mConnection = new ServiceConnection() {
-
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			
-			mBridge = StreamingInflowBinder.asInterface(service);
-			requestConnectionStart();
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			
-		}
-		
-	};
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		initiateComponents();
 		
-		Intent intent = new Intent(this, StreamingInflowService.class);
-		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 	}
 
 	private StreamingView mStreamingView;
@@ -61,37 +30,37 @@ public class StreamingInflowActivity extends Activity {
 	private void initiateComponents() {
 		setContentView(R.layout.activity_streaming);
 
-		mStreamingView = (StreamingView) findViewById(R.id.streaming_view);
+		//mStreamingView = (StreamingView) findViewById(R.id.streaming_view);
+		MjpegView view = (MjpegView) findViewById(R.id.streaming_mjpeg);
+		
+		try {
+			Socket socket = new Socket("127.0.0.1", 8080);
+			view.setSource(new MjpegInputStream(socket.getInputStream()));
+			view.startPlayback();
+			
+		} catch (Exception e) {
+			
+		}
 		
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-	}
-	
-	private void requestConnectionStart() {
-		if (mBridge == null)
-			return;
 		
-		try {
-			boolean connected = mBridge.startConnection();
-			
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+		// TODO : USB 연결이 확인되면, RTP 소켓을 열고 통신을 수행한다.
+		//mStreamingView.startStreaming();
+		
 	}
 	
 	@Override
 	protected void onPause() {
-		
+		//mStreamingView.stopStreaming();
 		super.onPause();
 	}
 	
 	@Override
 	protected void onDestroy() {
-		unbindService(mConnection);
-		
 		super.onDestroy();
 	}
 	

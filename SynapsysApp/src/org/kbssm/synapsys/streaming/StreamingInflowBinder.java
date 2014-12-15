@@ -23,7 +23,7 @@ public class StreamingInflowBinder extends IStreamingInflowBridge.Stub {
 	public boolean startConnection() throws RemoteException {
 		switch (mState) {
 		case DISCONNECTED:
-			mService.connect();
+			mService.connectStreaming();
 			return true;
 			
 		case CONNECTED:
@@ -45,7 +45,7 @@ public class StreamingInflowBinder extends IStreamingInflowBridge.Stub {
 	public boolean resumeConnection() throws RemoteException {
 		switch (mState) {
 		case PAUSE:
-			mService.resume();
+			mService.resumeStreaming();
 			return true;
 			
 		case CONNECTED:
@@ -69,7 +69,7 @@ public class StreamingInflowBinder extends IStreamingInflowBridge.Stub {
 		case CONNECTED:
 		case READY:
 		case TRANSMIT:
-			mService.pause();
+			mService.pauseStreaming();
 			return true;
 
 		case PAUSE:
@@ -90,7 +90,7 @@ public class StreamingInflowBinder extends IStreamingInflowBridge.Stub {
 		case CONNECTED:
 		case READY:
 		case PAUSE:
-			mService.disconnect();
+			mService.disconnectStreaming();
 			return true;
 
 		case TRANSMIT:
