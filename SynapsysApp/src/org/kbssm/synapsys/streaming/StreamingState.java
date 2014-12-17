@@ -8,7 +8,7 @@ package org.kbssm.synapsys.streaming;
 public enum StreamingState {
 	CONNECTED,
 	READY,
-	TRANSMIT,
+	RUNNING,
 	PAUSE,
 	DISCONNECTED
 }

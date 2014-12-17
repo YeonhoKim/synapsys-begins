@@ -1,11 +1,21 @@
 package org.kbssm.synapsys.streaming;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.Properties;
 
-import org.kbssm.synapsys.streaming._MjpecDecoder.MjpegInputStream;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -18,7 +28,11 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
+/**
+ * TCP / HTTP 를 이용한 스트리밍.
+ *
+ */
+public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callback {
 	public final static int POSITION_UPPER_LEFT = 9;
 	public final static int POSITION_LOWER_LEFT = 12;
 	public final static int POSITION_LOWER_RIGHT = 6;
@@ -57,12 +71,12 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 		private Rect destRect(int bmw, int bmh) {
 			int tempx;
 			int tempy;
-			if (displayMode == MjpegView.SIZE_STANDARD) {
+			if (displayMode == OldStreamingView.SIZE_STANDARD) {
 				tempx = (dispWidth / 2) - (bmw / 2);
 				tempy = (dispHeight / 2) - (bmh / 2);
 				return new Rect(tempx, tempy, bmw + tempx, bmh + tempy);
 			}
-			if (displayMode == MjpegView.SIZE_BEST_FIT) {
+			if (displayMode == OldStreamingView.SIZE_BEST_FIT) {
 				float bmasp = (float) bmw / (float) bmh;
 				bmw = dispWidth;
 				bmh = (int) (dispWidth / bmasp);
@@ -74,7 +88,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 				tempy = (dispHeight / 2) - (bmh / 2);
 				return new Rect(tempx, tempy, bmw + tempx, bmh + tempy);
 			}
-			if (displayMode == MjpegView.SIZE_FULLSCREEN)
+			if (displayMode == OldStreamingView.SIZE_FULLSCREEN)
 				return new Rect(0, 0, dispWidth, dispHeight);
 			return null;
 		}
@@ -172,8 +186,8 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 			overlayPaint.setTypeface(Typeface.DEFAULT);
 			overlayTextColor = Color.WHITE;
 			overlayBackgroundColor = Color.BLACK;
-			ovlPos = MjpegView.POSITION_LOWER_RIGHT;
-			displayMode = MjpegView.SIZE_STANDARD;
+			ovlPos = OldStreamingView.POSITION_LOWER_RIGHT;
+			displayMode = OldStreamingView.SIZE_FULLSCREEN;
 			dispWidth = getWidth();
 			dispHeight = getHeight();
 			Log.i("AppLog", "init");
@@ -206,7 +220,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 	}
 
-	public MjpegView(Context context, AttributeSet attrs) {
+	public OldStreamingView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
@@ -220,7 +234,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 		stopPlayback();
 	}
 
-	public MjpegView(Context context) {
+	public OldStreamingView(Context context) {
 		super(context);
 		init(context);
 	}
@@ -256,5 +270,80 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public void setDisplayMode(int s) {
 		displayMode = s;
+	}
+	
+	public static class MjpegInputStream extends DataInputStream {
+		private final byte[] SOI_MARKER = { (byte) 0xFF, (byte) 0xD8 };
+		private final byte[] EOF_MARKER = { (byte) 0xFF, (byte) 0xD9 };
+		private final String CONTENT_LENGTH = "Content-Length";
+		private final static int HEADER_MAX_LENGTH = 100;
+		private final static int FRAME_MAX_LENGTH = 40000 + HEADER_MAX_LENGTH;
+		private int mContentLength = -1;
+
+		public static MjpegInputStream read(String url) {
+			HttpResponse res;
+			DefaultHttpClient httpclient = new DefaultHttpClient();
+			try {
+				res = httpclient.execute(new HttpGet(URI.create(url)));
+				return new MjpegInputStream(res.getEntity().getContent());
+			} catch (ClientProtocolException e) {
+			} catch (IOException e) {
+			}
+			return null;
+		}
+
+		public MjpegInputStream(InputStream in) {
+			super(new BufferedInputStream(in, FRAME_MAX_LENGTH));
+		}
+
+		private int getEndOfSeqeunce(DataInputStream in, byte[] sequence)
+				throws IOException {
+			int seqIndex = 0;
+			byte c;
+			for (int i = 0; i < FRAME_MAX_LENGTH; i++) {
+				c = (byte) in.readUnsignedByte();
+				if (c == sequence[seqIndex]) {
+					seqIndex++;
+					if (seqIndex == sequence.length)
+						return i + 1;
+				} else
+					seqIndex = 0;
+			}
+			return -1;
+		}
+
+		private int getStartOfSequence(DataInputStream in, byte[] sequence)
+				throws IOException {
+			int end = getEndOfSeqeunce(in, sequence);
+			return (end < 0) ? (-1) : (end - sequence.length);
+		}
+
+		private int parseContentLength(byte[] headerBytes) throws IOException,
+				NumberFormatException {
+			ByteArrayInputStream headerIn = new ByteArrayInputStream(
+					headerBytes);
+			Properties props = new Properties();
+			props.load(headerIn);
+			return Integer.parseInt(props.getProperty(CONTENT_LENGTH));
+		}
+
+		public Bitmap readMjpegFrame() throws IOException {
+			mark(FRAME_MAX_LENGTH);
+			int headerLen = getStartOfSequence(this, SOI_MARKER);
+			reset();
+			byte[] header = new byte[headerLen];
+			readFully(header);
+			try {
+				mContentLength = parseContentLength(header);
+			} catch (NumberFormatException nfe) {
+				mContentLength = getEndOfSeqeunce(this, EOF_MARKER);
+			}
+			reset();
+			byte[] frameData = new byte[mContentLength];
+			skipBytes(headerLen);
+			readFully(frameData);
+			return BitmapFactory.decodeStream(new ByteArrayInputStream(
+					frameData));
+		}
 	}
 }

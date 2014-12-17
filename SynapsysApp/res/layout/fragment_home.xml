@@ -1,6 +1,6 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -9,81 +9,15 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="org.kbssm.synapsys.MainActivity$PlaceholderFragment" >
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical" >
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="107dp"
+        android:text="SYNAPSYS"
+        android:textColor="#DEDEDE"
+        android:textSize="25sp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:gravity="center"
-            android:text="USB"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <ImageButton
-            android:id="@+id/home_usb_btn"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="10dp"
-            android:background="@android:color/transparent"
-            android:scaleType="fitCenter"
-            android:src="@drawable/home_usb_selector" />
-        
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="History"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-        
-        <ListView
-            android:id="@+id/home_usb_log_listview"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="3" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical" >
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:gravity="center"
-            android:text="Wireless"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <ImageButton
-            android:id="@+id/home_wireless_btn"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="10dp"
-            android:background="@android:color/transparent"
-            android:scaleType="fitCenter"
-            android:src="@drawable/home_wireless_selector" />
-        
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="History"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-        
-        <ListView
-            android:id="@+id/home_wireless_log_listview"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="3" />
-        
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

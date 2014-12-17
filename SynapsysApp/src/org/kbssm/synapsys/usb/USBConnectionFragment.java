@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * 
@@ -31,9 +33,15 @@ public class USBConnectionFragment extends NavigationFragment {
 		
 	}
 	
+	private TextView mConnectionStateText;
+	private TextView mTetheringStateText;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View createView = inflater.inflate(R.layout.fragment_usb, container, false);
+		
+		mConnectionStateText = (TextView) createView.findViewById(R.id.textView3);
+		mTetheringStateText = (TextView) createView.findViewById(R.id.TextView02);
 		
 		createView.findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
 			
@@ -48,6 +56,16 @@ public class USBConnectionFragment extends NavigationFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		
+		UsbManager m = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
+		String a = "";
+		for(String key: m.getDeviceList().keySet())
+			a += (key + " / ");
+		
+		Toast.makeText(getActivity(), a, Toast.LENGTH_LONG).show();
+		// USB Connected이면, 
+		// Tethering 검사
+		// Tethering 활성화.
 	}
 	
 	@Override

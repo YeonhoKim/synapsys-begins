@@ -3,9 +3,10 @@ package org.kbssm.synapsys.streaming;
 import java.net.Socket;
 
 import org.kbssm.synapsys.R;
-import org.kbssm.synapsys.streaming._MjpecDecoder.MjpegInputStream;
+import org.kbssm.synapsys.streaming.OldStreamingView.MjpegInputStream;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.WindowManager;
 
@@ -16,6 +17,8 @@ import android.view.WindowManager;
  */
 public class StreamingInflowActivity extends Activity {
 
+	private ProgressDialog mProgressDialog;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -23,6 +26,10 @@ public class StreamingInflowActivity extends Activity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		initiateComponents();
 		
+		mProgressDialog = new ProgressDialog(this);
+		mProgressDialog.setTitle("Streaming...");
+		mProgressDialog.show();
+	
 	}
 
 	private StreamingView mStreamingView;
@@ -30,17 +37,25 @@ public class StreamingInflowActivity extends Activity {
 	private void initiateComponents() {
 		setContentView(R.layout.activity_streaming);
 
-		//mStreamingView = (StreamingView) findViewById(R.id.streaming_view);
-		MjpegView view = (MjpegView) findViewById(R.id.streaming_mjpeg);
+		mStreamingView = (StreamingView) findViewById(R.id.streaming_view);
+		final OldStreamingView view = (OldStreamingView) findViewById(R.id.streaming_mjpeg);
 		
-		try {
-			Socket socket = new Socket("127.0.0.1", 8080);
-			view.setSource(new MjpegInputStream(socket.getInputStream()));
-			view.startPlayback();
-			
-		} catch (Exception e) {
-			
-		}
+		new Thread() {
+			public void run() {
+				try {
+					Socket socket = new Socket("192.168.42.94", 8080);
+					socket.setSoTimeout(10000);
+					
+					view.setSource(new MjpegInputStream(socket.getInputStream()));
+					view.startPlayback();					
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+				}
+				
+				mProgressDialog.hide();
+			};
+		}.start();
 		
 	}
 	

@@ -5,7 +5,7 @@ package org.kbssm.synapsys.global;
  * @author Yeonho.Kim
  *
  */
-public class EventLog {
+public class _EventLog {
 
 	private long mTimestamp;
 	

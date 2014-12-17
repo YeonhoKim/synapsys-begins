@@ -1,5 +1,6 @@
 package org.kbssm.synapsys.usb;
 
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,23 +10,30 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * USB ������� �̺�Ʈ�� �޴� Broadcast Receiver.
+ * USB 연결을 감지하는 Broadcast Receiver.
  * 
  * @author Yeonho.Kim
  *
  */
 public class USBConnectReceiver extends BroadcastReceiver {
 
-	static final boolean DEBUG = true;
+	public static final String ACTION_USB_STATE_CHANGED = "android.hardware.usb.action.USB_STATE";
+
 	static final String TAG = "USBConnectReceiver";
+	static final boolean DEBUG = true;
+	
 	
 	private static USBConnectReceiver sInstance;
 	
+	public static final USBConnectReceiver getInstance() {
+		return sInstance;
+	}
 	
-	public static void register(Context context) {
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
-		filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
+	public static void register(Application context) {
+		final IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_USB_STATE_CHANGED);
+		//filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
+		//filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
 		
 		if (sInstance == null)
 			sInstance = new USBConnectReceiver(context);
@@ -33,16 +41,16 @@ public class USBConnectReceiver extends BroadcastReceiver {
 		context.registerReceiver(sInstance, filter);
 	}
 	
-	public static void unregister(Context context) {
-		if (sInstance != null)
+	public static void unregister() {
+		if (sInstance != null) {
+			Context context = sInstance.getContext();
 			context.unregisterReceiver(sInstance);
+		}
 	}
 	
-	
-	private final Context mContext;
-	
+	private final Context mContextF;
 	private USBConnectReceiver(Context context) {
-		mContext = context;
+		mContextF = context;
 	}
 	
 	@Override
@@ -54,13 +62,42 @@ public class USBConnectReceiver extends BroadcastReceiver {
 			Toast.makeText(context, action, Toast.LENGTH_SHORT).show();
 		}
 		
-		if (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
+		if (ACTION_USB_STATE_CHANGED.equals(action)) {
+			if (mConnectionStateListener != null) {
+				if (intent.getBooleanExtra("connected", false))
+					mConnectionStateListener.onConnected();
+				else
+					mConnectionStateListener.onDisconnected();
+			}
 			
-		} else 
-			if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
+		} else if (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
+			// NOT FILTERED
 			
-				
-		}
+		} else if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
+			// NOT FILTERED
+		} 
 	}
 
+	public final Context getContext() {
+		return mContextF;
+	}
+	
+	/**
+	 * USB 연결에 관련된 이벤트가 발생하였을 때, 수행할 작업을 정의하는 Interface.
+	 * 
+	 * @author Yeonho.Kim
+	 *
+	 */
+	public interface OnUsbConnectionStateListener {
+		
+		public void onConnected();
+		
+		public void onDisconnected();
+	}
+	
+	private OnUsbConnectionStateListener mConnectionStateListener;
+	
+	public void setOnUsbConnectionStateListener(OnUsbConnectionStateListener listener) {
+		mConnectionStateListener = listener;
+	}
 }

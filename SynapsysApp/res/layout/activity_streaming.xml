@@ -3,12 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <!-- <org.kbssm.synapsys.streaming.StreamingView
+   <org.kbssm.synapsys.streaming.StreamingView
         android:id="@+id/streaming_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" /> -->
+        android:layout_height="match_parent" />
     
-    <org.kbssm.synapsys.streaming.MjpegView 
+    <org.kbssm.synapsys.streaming.OldStreamingView 
         android:id="@+id/streaming_mjpeg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
@@ -24,7 +24,7 @@
         <Button
             android:id="@+id/handle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="20dp"
             android:background="@null" />
 
         <LinearLayout

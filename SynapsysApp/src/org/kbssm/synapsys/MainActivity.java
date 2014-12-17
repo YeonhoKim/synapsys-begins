@@ -1,20 +1,14 @@
 package org.kbssm.synapsys;
 
 import org.kbssm.synapsys.usb.USBConnectReceiver;
+import org.kbssm.synapsys.usb.USBConnectReceiver.OnUsbConnectionStateListener;
+import org.kbssm.synapsys.usb.USBConnectionFragment;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.hardware.usb.UsbAccessory;
-import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -48,53 +42,47 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		mTitle = getTitle();
 
 		// Set up the drawer.
-		mNavigationDrawerFragment.setUp(
-				R.id.main_navigation_drawer,
-				(DrawerLayout) findViewById(R.id.main_drawer_layout) );
+		mNavigationDrawerFragment.setUp( R.id.main_navigation_drawer,
+										(DrawerLayout) findViewById(R.id.main_drawer_layout) );
 		
-		// Register USB EventReceiver.
-		USBConnectReceiver.register(this);
 		
 		init();
 	}
 
-
-	private static final String ACTION_USB_PERMISSION =
-		    "com.android.example.USB_PERMISSION";
-	private final BroadcastReceiver mUsbReceiver =new BroadcastReceiver(){
-	    public void onReceive(Context context,Intent intent){
-	        String action = intent.getAction();
-	        if(ACTION_USB_PERMISSION.equals(action)){
-	            synchronized(this){
-	                UsbAccessory accessory =(UsbAccessory) intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
-	                if(intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,false)){
-	                    if(accessory !=null){
-	                        //�׼����� ����ϱ� ���� ���� �ڵ�
-	                    }
-	                }
-	                else{
-	                    Log.d("","permission denied for accessory "+ accessory);
-	                }
-	            }
-	        }
-	    }
-	};
 	void init () {
-		UsbManager mUsbManager =(UsbManager) getSystemService(Context.USB_SERVICE);
-	
-		PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this,0,new Intent(ACTION_USB_PERMISSION),0);
-		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-		registerReceiver(mUsbReceiver, filter);
 		
-		UsbAccessory accessory =(UsbAccessory)getIntent().getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
-		mUsbManager.requestPermission(accessory, mPermissionIntent);
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		USBConnectReceiver receiver = USBConnectReceiver.getInstance();
+		if (receiver != null) {
+			receiver.setOnUsbConnectionStateListener(new OnUsbConnectionStateListener() {
+				
+				@Override
+				public void onDisconnected() {
+					mNavigationDrawerFragment.performItemClick(0);
+				}
+				
+				@Override
+				public void onConnected() {
+					mNavigationDrawerFragment.performItemClick(1);
+				}
+			});
+		}
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+	}
+	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		
-		// Unregister USB EventReceiver.
-		USBConnectReceiver.unregister(this);
 	}
 
 	@Override

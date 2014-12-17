@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -74,8 +73,7 @@ public class NavigationDrawerFragment extends Fragment {
 		mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
 
 		if (savedInstanceState != null) {
-			mCurrentSelectedPosition = savedInstanceState
-					.getInt(STATE_SELECTED_POSITION);
+			mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
 			mFromSavedInstanceState = true;
 		}
 
@@ -92,26 +90,26 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		mDrawerListView = (ListView) inflater.inflate(
-				R.layout.fragment_streaming_navigation, container, false);
-		mDrawerListView
-				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_main_navigation, container, false);
+		mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view,
 							int position, long id) {
 						selectItem(position);
 					}
 				});
+		
 		mDrawerListView.setAdapter(new ArrayAdapter<String>(getActionBar()
 				.getThemedContext(),
 				android.R.layout.simple_list_item_activated_1,
 				android.R.id.text1, new String[] {
-						getString(R.string.title_section1),
-						getString(R.string.title_section2),
-						getString(R.string.title_section3), }));
+						getString(R.string.title_home_section),
+						getString(R.string.title_usb_section),
+						getString(R.string.title_wireless_section), 
+						getString(R.string.title_setting_section)}));
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+		
 		return mDrawerListView;
 	}
 
@@ -180,10 +178,8 @@ public class NavigationDrawerFragment extends Fragment {
 					// prevent auto-showing
 					// the navigation drawer automatically in the future.
 					mUserLearnedDrawer = true;
-					SharedPreferences sp = PreferenceManager
-							.getDefaultSharedPreferences(getActivity());
-					sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true)
-							.apply();
+					SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+					sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
 				}
 
 				getActivity().invalidateOptionsMenu(); // calls
@@ -271,12 +267,6 @@ public class NavigationDrawerFragment extends Fragment {
 			return true;
 		}
 
-		if (item.getItemId() == R.id.action_example) {
-			Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT)
-					.show();
-			return true;
-		}
-
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -295,7 +285,6 @@ public class NavigationDrawerFragment extends Fragment {
 	private ActionBar getActionBar() {
 		return getActivity().getActionBar();
 	}
-
 
 	public void performItemClick(int position) {
 		selectItem(position);

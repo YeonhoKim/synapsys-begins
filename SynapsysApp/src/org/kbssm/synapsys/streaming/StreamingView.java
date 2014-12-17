@@ -15,18 +15,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
 /**
  * Streaming Surface View.
+ * RTP/UDP 통신을 이용하여 영상을 스트리밍한다.
  * 
  * @author Yeonho.Kim
  *
@@ -43,70 +40,57 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 
 	public static final int INFLOW_PORT = 1113;
 	private static final int TIMEOUT = 10 * 1000; 	// ms
+
+	
+	
+	private final Context mContextF;
+
+	private int mDisplayMode;
+	private int mDisplayWidth;
+	private int mDisplayHeight;
+	
 	
 	public StreamingView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		
-		init(mContext = context);
-	}
-	
-	private final Context mContext;
-
-	private int mDisplayWidth;
-	private int mDisplayHeight;
-	private int mDisplayMode;
-	
-	private StreamingThread1 mThread;
-	private FrameInputStreaming mInputStreaming;
-	private boolean isRunning;
-	private boolean isSurfaceReady;
-
-	private boolean resume = false;
-	
-	private boolean isShowingFPS = false;
-	private Paint overlayPaint;
-	private int overlayTextColor;
-	private int overlayBackgroundColor;
-	private int ovlPos;
-	
-	private void init(Context context) {
-		SurfaceHolder holder = getHolder();
-		holder.addCallback(this);
-		
-		mThread = new StreamingThread1(holder);
 		setFocusable(true);
-		if (!resume) {
-			resume = true;
-			overlayPaint = new Paint();
-			overlayPaint.setTextAlign(Paint.Align.LEFT);
-			overlayPaint.setTextSize(12);
-			overlayPaint.setTypeface(Typeface.DEFAULT);
-			overlayTextColor = Color.WHITE;
-			overlayBackgroundColor = Color.BLACK;
-			ovlPos = POSITION_LOWER_RIGHT;
-			
-			mDisplayMode = SIZE_STANDARD;
-			mDisplayWidth = getWidth();
-			mDisplayHeight = getHeight();
-			
-			Log.i("AppLog", "init");
-		}
+		
+		init(mContextF = context);
 	}
 	
 	private DatagramSocket mInflowSocket;
-	private StreamingThread mStreamingThread;
+	private StreamingInflowThread mStreamingThread;
+	private FrameInflowStreaming mInflowStreaming;
+	
+	private boolean isRunning;
+	private boolean isResuming = false;
+	private boolean isSurfaceReady;
+	
+	
+	/**
+	 * Streaming View 초기화
+	 * 
+	 * @param context
+	 */
+	private void init(Context context) {
+		getHolder().addCallback(this);
+		
+		if (isResuming = !isResuming) {
+			mDisplayMode = SIZE_FULLSCREEN;
+			mDisplayWidth = getMeasuredWidth();
+			mDisplayHeight = getMeasuredHeight();
+		}
+	}
 	
 	public void startStreaming() {
 		try {
 			mInflowSocket = new DatagramSocket(INFLOW_PORT);
 			mInflowSocket.setSoTimeout(TIMEOUT);
 			
-			//mStreamingThread = new MjpegStreaming.InflowThread(mInflowSocket, this);
-			//mStreamingThread.start();
+			mStreamingThread = new StreamingInflowThread(getHolder());
+			mStreamingThread.setSurfaceSize(mDisplayWidth, mDisplayHeight);
+			mStreamingThread.start();
 			
 			isRunning = true;
-			mThread.setSurfaceSize(getWidth(), getHeight());
-			mThread.start();
 			
 		} catch(SocketException e) {
 			Toast.makeText(getContext(), "Streaming socket failed. ", Toast.LENGTH_SHORT).show();
@@ -135,14 +119,18 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-		if (mThread != null)
-			mThread.setSurfaceSize(width, height);
+		if (mStreamingThread != null)
+			mStreamingThread.setSurfaceSize(width, height);
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		isSurfaceReady = false;
 		
+	}
+	
+	public void setStreamingStream(FrameInflowStreaming stream) {
+		mInflowStreaming = stream;
 	}
 
 	public int getDisplayMode() {
@@ -162,15 +150,11 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 	 * @author Yeonho.Kim
 	 *
 	 */
-	private class StreamingThread1 extends Thread {
+	private class StreamingInflowThread extends StreamingThread {
 		
 		private SurfaceHolder mSurfaceHolder;
-		private long mStartTime;
-
-		private Bitmap ovl;
-		private int frameCounter = 0;
 		
-		public StreamingThread1(SurfaceHolder holder) {
+		public StreamingInflowThread(SurfaceHolder holder) {
 			mSurfaceHolder = holder;
 		}
 		
@@ -202,40 +186,20 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 			
 			return null;
 		}
-
+	
 		public void setSurfaceSize(int width, int height) {
 			synchronized (mSurfaceHolder) {
 				mDisplayWidth = width;
 				mDisplayHeight = height;
 			}
 		}
-
-		private Bitmap makeFpsOverlay(Paint p, String text) {
-			Rect b = new Rect();
-			p.getTextBounds(text, 0, text.length(), b);
-			int bwidth = b.width() + 2;
-			int bheight = b.height() + 2;
-			Bitmap bm = Bitmap.createBitmap(bwidth, bheight,
-					Bitmap.Config.ARGB_8888);
-			Canvas c = new Canvas(bm);
-			p.setColor(overlayBackgroundColor);
-			c.drawRect(0, 0, bwidth, bheight, p);
-			p.setColor(overlayTextColor);
-			c.drawText(text, -b.left + 1,
-					(bheight / 2) - ((p.ascent() + p.descent()) / 2) + 1, p);
-			return bm;
-		}
-
+	
+	
 		public void run() {
-			mStartTime = System.currentTimeMillis();
-			PorterDuffXfermode mode = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);
-			
 			Bitmap bitmap;
-			int width, height;
 			Rect destRect;
 			Canvas canvas = null;
 			Paint paint = new Paint();
-			String fps = "";
 			
 			while (isRunning) {
 				if (isSurfaceReady) {
@@ -243,35 +207,13 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 						canvas = mSurfaceHolder.lockCanvas();
 						synchronized (mSurfaceHolder) {
 							try {
-								bitmap = mInputStreaming.readFrameAsMJPEG();
+								bitmap = mInflowStreaming.readFrameAsMJPEG();
 								destRect = destRect(bitmap.getWidth(), bitmap.getHeight());
 								
 								canvas.drawColor(Color.BLACK);
 								canvas.drawBitmap(bitmap, null, destRect, paint);
 								
-								if (isShowingFPS) {
-									paint.setXfermode(mode);
-									if (ovl != null) {
-										height = ((ovlPos & 1) == 1) ? destRect.top
-												: destRect.bottom
-														- ovl.getHeight();
-										width = ((ovlPos & 8) == 8) ? destRect.left
-												: destRect.right
-														- ovl.getWidth();
-										canvas.drawBitmap(ovl, width, height,
-												null);
-									}
-									paint.setXfermode(null);
-									frameCounter++;
-									if ((System.currentTimeMillis() - mStartTime) >= 1000) {
-										fps = String.valueOf(frameCounter)
-												+ "fps";
-										frameCounter = 0;
-										mStartTime = System.currentTimeMillis();
-										ovl = makeFpsOverlay(overlayPaint,
-												fps);
-									}
-								}
+								
 							} catch (IOException e) {
 							}
 						}
@@ -282,14 +224,20 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 				}
 			}
 		}
+
+		@Override
+		public void close() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
-	
+
 	/**
 	 * 
 	 * @author Yeonho.Kim
 	 *
 	 */
-	private class FrameInputStreaming extends DataInputStream {
+	private class FrameInflowStreaming extends DataInputStream {
 		
 		private final static int HEADER_MAX_LENGTH = 100;
 		private final static int FRAME_MAX_LENGTH = 40000 + HEADER_MAX_LENGTH;
@@ -299,7 +247,7 @@ public class StreamingView extends SurfaceView implements SurfaceHolder.Callback
 		
 		private int mContentLength = -1;
 
-		public FrameInputStreaming(InputStream in) {
+		public FrameInflowStreaming(InputStream in) {
 			super(new BufferedInputStream(in, FRAME_MAX_LENGTH));
 		}
 		
