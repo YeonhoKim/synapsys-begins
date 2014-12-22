@@ -45,6 +45,7 @@
     <string name="usb_card_direction_inflow">WINDOWS >>> ANDROID</string>
     
     
+    <string name="fragment_wireless_warning">Wireless Connection\nis not supported yet :(\nWe will see you soon.</string>
     
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>

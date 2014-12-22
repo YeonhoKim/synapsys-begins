@@ -62,7 +62,7 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 			new Thread() {
 				public void run() {
 					try {
-						ServerSocket server = new ServerSocket(1113);
+						ServerSocket server = new ServerSocket(1114);
 						server.setSoTimeout(60000);
 
 						Socket socket = server.accept();

@@ -8,11 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.Toast;
 
 /**
@@ -49,10 +48,8 @@ public class UsbConnectionFragment extends NavigationFragment {
 			}
 		});
 		
-		RecyclerView mRecyclerView = (RecyclerView) createView.findViewById(R.id.usb_recycler_view);
-		mRecyclerView.setHasFixedSize(true);
-		mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-		mRecyclerView.setAdapter(mConnectionAdapter = new UsbConnectionAdapter());
+		ListView mConnectionListView = (ListView) createView.findViewById(R.id.usb_list_view);
+		mConnectionListView.setAdapter(mConnectionAdapter = new UsbConnectionAdapter());
 		
 		return createView;
 	}

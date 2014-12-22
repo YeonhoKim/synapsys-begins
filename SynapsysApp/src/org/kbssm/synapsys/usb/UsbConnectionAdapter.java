@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.kbssm.synapsys.R;
-import org.kbssm.synapsys.usb.UsbConnectionAdapter.UsbViewHolder;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,10 +17,9 @@ import android.widget.TextView;
  * @author Yeonho.Kim
  *
  */
-public class UsbConnectionAdapter extends RecyclerView.Adapter<UsbViewHolder> {
+public class UsbConnectionAdapter extends BaseAdapter {
 	
-	
-	public static class UsbViewHolder extends RecyclerView.ViewHolder {
+	public static class UsbViewHolder {
 
 		public ImageView backgroundImageView;
 		public TextView titleTextView;
@@ -30,8 +28,6 @@ public class UsbConnectionAdapter extends RecyclerView.Adapter<UsbViewHolder> {
 		public TextView directionTextView;
 		
 		public UsbViewHolder(View itemView) {
-			super(itemView);
-			
 			backgroundImageView = (ImageView) itemView.findViewById(R.id.usb_card_background_image);
 			titleTextView = (TextView) itemView.findViewById(R.id.usb_card_title_text);
 			directionTextView = (TextView) itemView.findViewById(R.id.usb_card_description_text);
@@ -47,33 +43,43 @@ public class UsbConnectionAdapter extends RecyclerView.Adapter<UsbViewHolder> {
 		mConnectionList = new ArrayList<UsbConnection>();
 	}
 	
+	public void onRegisteredTethering(UsbConnection connection) {
+		mConnectionList.add(connection);
+		notifyDataSetChanged();
+	}
+
 	@Override
-	public int getItemCount() {
+	public int getCount() {
 		return mConnectionList.size();
 	}
 
 	@Override
-	public void onBindViewHolder(UsbViewHolder viewHolder, int position) {
+	public Object getItem(int position) {
+		return mConnectionList.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		if (convertView == null) {
+			convertView = LayoutInflater.from(parent.getContext())
+					.inflate(R.layout.view_usb_card, parent, false);
+			
+			convertView.setTag(new UsbViewHolder(convertView));
+		}
 		
 		UsbConnection usbConn = mConnectionList.get(position);
-		
+
+		UsbViewHolder viewHolder = (UsbViewHolder) convertView.getTag();
 		viewHolder.backgroundImageView.setImageResource(usbConn.getBackgroundRes());
 		viewHolder.titleTextView.setText(usbConn.getTitle());
 		viewHolder.connectionTextView.setText(usbConn.getConnectionString());
 		viewHolder.directionTextView.setText(usbConn.getDirectionString());
-	}
-
-	@Override
-	public UsbViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
-		View view = LayoutInflater.from(viewGroup.getContext())
-						.inflate(R.layout.view_usb_card, viewGroup, false);
 	
-
-		return new UsbViewHolder(view);
-	}
-
-	public void onRegisteredTethering(UsbConnection connection) {
-		mConnectionList.add(connection);
-		notifyDataSetChanged();
+		return convertView;
 	}
 }
