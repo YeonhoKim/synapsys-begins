@@ -1,7 +1,7 @@
-package org.kbssm.synapsys.streaming.rtp;
+package org.kbssm.synapsys.streaming;
 
 
-public class RtpPacket {
+public class _RtpPacket {
 
 	// size of the RTP header:
 	static int HEADER_SIZE = 12;
@@ -29,7 +29,7 @@ public class RtpPacket {
 	// Constructor of an RTPpacket object from header fields and payload
 	// bitstream
 	// --------------------------
-	public RtpPacket(int PType, int Framenb, int Time, byte[] data,
+	public _RtpPacket(int PType, int Framenb, int Time, byte[] data,
 			int data_length) {
 		// fill by default header fields:
 		Version = 2;
@@ -101,7 +101,7 @@ public class RtpPacket {
 	// --------------------------
 	// Constructor of an RTPpacket object from the packet bistream
 	// --------------------------
-	public RtpPacket(byte[] packet, int packet_size) {
+	public _RtpPacket(byte[] packet, int packet_size) {
 		// fill default fields:
 		Version = 2;
 		Padding = 0;

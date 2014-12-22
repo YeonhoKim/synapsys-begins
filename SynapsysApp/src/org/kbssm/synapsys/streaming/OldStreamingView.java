@@ -27,6 +27,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 /**
  * TCP / HTTP 를 이용한 스트리밍.
@@ -56,7 +57,8 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 	private int displayMode;
 	private boolean resume = false;
 
-	private Context context;
+	private static Context context;
+	private static Toast mToast;
 
 	public class MjpegViewThread extends Thread {
 		private SurfaceHolder mSurfaceHolder;
@@ -66,6 +68,7 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 
 		public MjpegViewThread(SurfaceHolder surfaceHolder, Context context) {
 			mSurfaceHolder = surfaceHolder;
+			mToast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
 		}
 
 		private Rect destRect(int bmw, int bmh) {
@@ -329,7 +332,16 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 
 		public Bitmap readMjpegFrame() throws IOException {
 			mark(FRAME_MAX_LENGTH);
-			int headerLen = getStartOfSequence(this, SOI_MARKER);
+			final int headerLen = getStartOfSequence(this, SOI_MARKER);
+			// TOAST
+						((StreamingInflowActivity) context).handler.post(new Runnable() {
+							@Override
+							public void run() {
+								mToast.setText("HEADER SIZE : " + headerLen);
+								mToast.show();
+							}
+						});
+			
 			reset();
 			byte[] header = new byte[headerLen];
 			readFully(header);
@@ -339,9 +351,18 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 				mContentLength = getEndOfSeqeunce(this, EOF_MARKER);
 			}
 			reset();
-			byte[] frameData = new byte[mContentLength];
+			final byte[] frameData = new byte[mContentLength];
 			skipBytes(headerLen);
 			readFully(frameData);
+			
+			// TOAST
+			/*((StreamingInflowActivity) context).handler.post(new Runnable() {
+				@Override
+				public void run() {
+					Toast.makeText(context, "DATA : " + frameData, Toast.LENGTH_SHORT).show();
+				}
+			});*/
+			
 			return BitmapFactory.decodeStream(new ByteArrayInputStream(
 					frameData));
 		}

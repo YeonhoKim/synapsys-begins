@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +21,9 @@ import android.widget.Toast;
  * @author Yeonho.Kim
  *
  */
-public class USBConnectionFragment extends NavigationFragment {
+public class UsbConnectionFragment extends NavigationFragment {
 
-	public USBConnectionFragment() {
+	public UsbConnectionFragment() {
 		ORDER = 1;
 	}
 	
@@ -33,15 +35,12 @@ public class USBConnectionFragment extends NavigationFragment {
 		
 	}
 	
-	private TextView mConnectionStateText;
-	private TextView mTetheringStateText;
+	private UsbConnectionAdapter mConnectionAdapter;
+	
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View createView = inflater.inflate(R.layout.fragment_usb, container, false);
-		
-		mConnectionStateText = (TextView) createView.findViewById(R.id.textView3);
-		mTetheringStateText = (TextView) createView.findViewById(R.id.TextView02);
 		
 		createView.findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
 			
@@ -50,6 +49,12 @@ public class USBConnectionFragment extends NavigationFragment {
 				startActivity(new Intent(getActivity(), StreamingInflowActivity.class));
 			}
 		});
+		
+		RecyclerView mRecyclerView = (RecyclerView) createView.findViewById(R.id.usb_recycler_view);
+		mRecyclerView.setHasFixedSize(true);
+		mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+		//mRecyclerView.setAdapter(mConnectionAdapter = new UsbConnectionAdapter());
+		
 		return createView;
 	}
 	
@@ -58,7 +63,7 @@ public class USBConnectionFragment extends NavigationFragment {
 		super.onResume();
 		
 		UsbManager m = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
-		String a = "";
+		String a = "DEVICE : ";
 		for(String key: m.getDeviceList().keySet())
 			a += (key + " / ");
 		
@@ -66,12 +71,18 @@ public class USBConnectionFragment extends NavigationFragment {
 		// USB Connected이면, 
 		// Tethering 검사
 		// Tethering 활성화.
+		
+		UsbConnection connection = new UsbConnection();
+		connection.setTitle("TEST");
+		
+		//mConnectionAdapter.onRegisteredTethering(connection);
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
 	}
+	
 	
 	
 }

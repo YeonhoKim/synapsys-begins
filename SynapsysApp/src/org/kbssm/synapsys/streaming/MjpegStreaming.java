@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-import org.kbssm.synapsys.streaming.rtp.RtpPacket;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -56,7 +54,7 @@ public class MjpegStreaming {
 						try {
 							mInflowSocket.receive(packet);
 							
-							RtpPacket rtpPacket = new RtpPacket(packet.getData(), packet.getLength());
+							_RtpPacket rtpPacket = new _RtpPacket(packet.getData(), packet.getLength());
 
 							//get the payload bitstream from the RTPpacket object
 							int payloadLength = rtpPacket.getpayload_length();

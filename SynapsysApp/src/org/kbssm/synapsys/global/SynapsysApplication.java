@@ -1,6 +1,8 @@
 package org.kbssm.synapsys.global;
 
-import org.kbssm.synapsys.usb.USBConnectReceiver;
+import org.kbssm.synapsys.streaming.StreamingInflowActivity;
+import org.kbssm.synapsys.streaming.StreamingManager;
+import org.kbssm.synapsys.usb.UsbConnectReceiver;
 
 import android.app.Application;
 import android.content.res.Configuration;
@@ -10,18 +12,25 @@ import android.content.res.Configuration;
  * @author Yeonho.Kim
  *
  */
-public class SynapsysApplication extends Application implements USBConnectReceiver.OnUsbConnectionStateListener {
+public class SynapsysApplication extends Application {
 
+	private StreamingManager mStreamingManager;
+	
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		
-
 		// Register USB EventReceiver.
-		USBConnectReceiver.register(this);
+		UsbConnectReceiver.register(this);
 		
 		// System Permission 필요!
 		//USBConnectReceiver.getInstance().setOnUsbConnectionStateListener(this);
+		
+		if (StreamingInflowActivity.IsTCPLegacyMode)
+			return;
+		
+		mStreamingManager = StreamingManager.newInstance();
 	}
 	
 	@Override
@@ -34,7 +43,10 @@ public class SynapsysApplication extends Application implements USBConnectReceiv
 		super.onTerminate();
 
 		// Unregister USB EventReceiver.
-		USBConnectReceiver.unregister();
+		UsbConnectReceiver.unregister();
+		
+		if (mStreamingManager != null)
+			mStreamingManager.destroy();
 	}
 	
 	public boolean checkUSBConnected() {
@@ -42,23 +54,34 @@ public class SynapsysApplication extends Application implements USBConnectReceiv
 		return false;
 	}
 
-	@Override
-	public void onConnected() {
-		/*try {
-			SynapseManager.getInstance(this, new ISynapseListener(){
-				
-			}).setUsbTethering(true);
-			
-		} catch (SynapseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-	}
-
-	@Override
-	public void onDisconnected() {
-		// TODO Auto-generated method stub
+	/**
+	 * SynapsyApplication 기본 ConnectionStateListener.
+	 */
+	protected UsbConnectReceiver.OnUsbConnectionStateListener mOnUsbConnectionStateListener = 
+			new UsbConnectReceiver.OnUsbConnectionStateListener() {
 		
-	}
+		@Override
+		public void onConnected() {
+			/*try {
+				SynapseManager.getInstance(this, new ISynapseListener(){
+					
+				}).setUsbTethering(true);
+				
+			} catch (SynapseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
+		}
+
+		@Override
+		public void onDisconnected() {
+			// TODO Auto-generated method stub
+			
+		}
+	};
 	
+	
+	public final StreamingManager getStreamingManager() {
+		return mStreamingManager;
+	}
 }

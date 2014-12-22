@@ -6,15 +6,17 @@
    <org.kbssm.synapsys.streaming.StreamingView
         android:id="@+id/streaming_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" 
+        android:visibility="gone"/>
     
-    <org.kbssm.synapsys.streaming.OldStreamingView 
+     <org.kbssm.synapsys.streaming.OldStreamingView 
         android:id="@+id/streaming_mjpeg"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 
     <SlidingDrawer
-        android:id="@+id/sliding_drawer"
+        android:id="@+id/streaming_menu_drawer"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_gravity="bottom"
@@ -24,15 +26,25 @@
         <Button
             android:id="@+id/handle"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:background="@null" />
+            android:layout_height="30dp"
+            android:background="@drawable/streaming_menu_drawer_selector" />
 
         <LinearLayout
             android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="match_parent" 
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+       		android:background="#80dbdbdb"
+            android:padding="5dp">
 
+            <TextView
+                android:id="@+id/streaming_menu_title"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="20dp"
+                android:gravity="center_vertical"
+                android:text="@string/streaming_menu_drawer_title" />
+                
             <Button
                 android:id="@+id/button1"
                 style="?android:attr/buttonStyleSmall"
@@ -47,12 +59,18 @@
                 android:layout_height="wrap_content"
                 android:text="Button2" />
 
-            <Button
-                android:id="@+id/button3"
-                style="?android:attr/buttonStyleSmall"
+            <Space 
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"/>
+            
+            <ImageButton
+                android:id="@+id/streaming_menu_lockbtn"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Button3" />
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/streaming_menu_lockbtn_selector"
+                android:background="@android:color/transparent" />
             
         </LinearLayout>
         

@@ -1,11 +1,11 @@
 package org.kbssm.synapsys;
 
-import org.kbssm.synapsys.usb.USBConnectionFragment;
+import org.kbssm.synapsys.usb.UsbConnectionFragment;
 import org.kbssm.synapsys.wireless.WirelessConnectionFragment;
 
 
 /**
- * {@link NavigationDrawerFragment}¿¡¼­ ´Ù·ê FragmentµéÀ» ´Ù·ç´Â Holder Class.
+ * {@link NavigationDrawerFragment}ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ Fragmentï¿½ï¿½ï¿½ï¿½ ï¿½Ù·ï¿½ï¿½ Holder Class.
  * 
  * @author Yeonho.Kim
  *
@@ -15,7 +15,7 @@ public class ContentFragmentHolder {
 	private static final NavigationFragmentCallbacks[] sContentFragments;
 	static {
 		HomeFragment home = new HomeFragment();
-		USBConnectionFragment usb = new USBConnectionFragment();
+		UsbConnectionFragment usb = new UsbConnectionFragment();
 		WirelessConnectionFragment wireless = new WirelessConnectionFragment();
 		SettingFragment setting = new SettingFragment();
 		

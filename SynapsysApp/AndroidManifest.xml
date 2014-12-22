@@ -29,7 +29,7 @@
             android:name="org.kbssm.synapsys.streaming.StreamingInflowActivity"
             android:label="@string/title_activity_streaming"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="portrait" >
         </activity>
     </application>
 

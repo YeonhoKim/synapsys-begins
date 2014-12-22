@@ -1,16 +1,18 @@
 package org.kbssm.synapsys;
 
-import org.kbssm.synapsys.usb.USBConnectReceiver;
-import org.kbssm.synapsys.usb.USBConnectReceiver.OnUsbConnectionStateListener;
-import org.kbssm.synapsys.usb.USBConnectionFragment;
+import org.kbssm.synapsys.usb.UsbConnectReceiver;
+import org.kbssm.synapsys.usb.UsbConnectReceiver.OnUsbConnectionStateListener;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 /**
  * The main activity that starts "Synapsys" operations.
@@ -31,6 +33,8 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	 * {@link #restoreActionBar()}.
 	 */
 	private CharSequence mTitle;
+	
+	private AlertDialog mUSBConnectDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,30 +49,49 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		mNavigationDrawerFragment.setUp( R.id.main_navigation_drawer,
 										(DrawerLayout) findViewById(R.id.main_drawer_layout) );
 		
-		
 		init();
+		
+
 	}
 
 	void init () {
+		DialogInterface.OnClickListener mOnClickListener = new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				switch(which) {
+				case DialogInterface.BUTTON_POSITIVE:
+					mNavigationDrawerFragment.performItemClick(1);
+					break;
+				}
+			}
+		};
 		
+		mUSBConnectDialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
+							.setTitle(R.string.USBConnectDialog_forward_dialog_title)
+							.setMessage(R.string.USBConnectDialog_forward_dialog_content)
+							.setPositiveButton(R.string.confirm, mOnClickListener)
+							.setNegativeButton(R.string.cancel, mOnClickListener)
+							.create();
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
-		USBConnectReceiver receiver = USBConnectReceiver.getInstance();
+
+		// USB 연결 이벤트 발생시, 처리할 로직 Interface를 등록한다.
+		UsbConnectReceiver receiver = UsbConnectReceiver.getInstance();
 		if (receiver != null) {
 			receiver.setOnUsbConnectionStateListener(new OnUsbConnectionStateListener() {
-				
 				@Override
 				public void onDisconnected() {
+					Toast.makeText(getBaseContext(), R.string.USBConnectDialog_detached_usb, Toast.LENGTH_SHORT).show();
 					mNavigationDrawerFragment.performItemClick(0);
 				}
 				
 				@Override
 				public void onConnected() {
-					mNavigationDrawerFragment.performItemClick(1);
+					mUSBConnectDialog.show();
 				}
 			});
 		}

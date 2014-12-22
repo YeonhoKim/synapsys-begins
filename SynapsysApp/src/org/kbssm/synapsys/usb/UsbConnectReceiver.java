@@ -15,7 +15,7 @@ import android.widget.Toast;
  * @author Yeonho.Kim
  *
  */
-public class USBConnectReceiver extends BroadcastReceiver {
+public class UsbConnectReceiver extends BroadcastReceiver {
 
 	public static final String ACTION_USB_STATE_CHANGED = "android.hardware.usb.action.USB_STATE";
 
@@ -23,9 +23,9 @@ public class USBConnectReceiver extends BroadcastReceiver {
 	static final boolean DEBUG = true;
 	
 	
-	private static USBConnectReceiver sInstance;
+	private static UsbConnectReceiver sInstance;
 	
-	public static final USBConnectReceiver getInstance() {
+	public static final UsbConnectReceiver getInstance() {
 		return sInstance;
 	}
 	
@@ -36,7 +36,7 @@ public class USBConnectReceiver extends BroadcastReceiver {
 		//filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
 		
 		if (sInstance == null)
-			sInstance = new USBConnectReceiver(context);
+			sInstance = new UsbConnectReceiver(context);
 		
 		context.registerReceiver(sInstance, filter);
 	}
@@ -49,7 +49,7 @@ public class USBConnectReceiver extends BroadcastReceiver {
 	}
 	
 	private final Context mContextF;
-	private USBConnectReceiver(Context context) {
+	private UsbConnectReceiver(Context context) {
 		mContextF = context;
 	}
 	
