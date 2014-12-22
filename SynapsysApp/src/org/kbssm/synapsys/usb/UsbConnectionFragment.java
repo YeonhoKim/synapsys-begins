@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -53,7 +52,7 @@ public class UsbConnectionFragment extends NavigationFragment {
 		RecyclerView mRecyclerView = (RecyclerView) createView.findViewById(R.id.usb_recycler_view);
 		mRecyclerView.setHasFixedSize(true);
 		mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-		//mRecyclerView.setAdapter(mConnectionAdapter = new UsbConnectionAdapter());
+		mRecyclerView.setAdapter(mConnectionAdapter = new UsbConnectionAdapter());
 		
 		return createView;
 	}
@@ -75,7 +74,7 @@ public class UsbConnectionFragment extends NavigationFragment {
 		UsbConnection connection = new UsbConnection();
 		connection.setTitle("TEST");
 		
-		//mConnectionAdapter.onRegisteredTethering(connection);
+		mConnectionAdapter.onRegisteredTethering(connection);
 	}
 	
 	@Override

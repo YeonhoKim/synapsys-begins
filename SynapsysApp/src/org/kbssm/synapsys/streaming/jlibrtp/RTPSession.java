@@ -30,10 +30,6 @@ import java.util.Random;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import android.bluetooth.BluetoothAdapter;
-import android.os.Build;
-import android.os.Environment;
 /**
  * The RTPSession object is the core of jlibrtp. 
  * 

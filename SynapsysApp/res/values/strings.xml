@@ -39,6 +39,13 @@
     <string name="preference_usb_default_connectionalert_title">Default USB Connection Alertable</string>
     <string name="preference_usb_default_connectionalert_summary">Set the option whether it alerts from dialog when USB connection events occur.</string>
     
+    <string name="usb_card_connection_title">CONNECTION</string>
+    <string name="usb_card_connection_connected">CONNECTED</string>
+    <string name="usb_card_direction_title">DIRECTION</string>
+    <string name="usb_card_direction_inflow">WINDOWS >>> ANDROID</string>
+    
+    
+    
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
 </resources>

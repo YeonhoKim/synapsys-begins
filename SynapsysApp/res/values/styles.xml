@@ -18,8 +18,9 @@
     </style>
     
     
+    
+    
     <style name="usb_connection_card_row" parent="AppBaseTheme">
         <item name="android:gravity">center</item>
     </style>
-
 </resources>

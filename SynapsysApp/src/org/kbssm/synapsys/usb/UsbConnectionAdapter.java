@@ -67,6 +67,7 @@ public class UsbConnectionAdapter extends RecyclerView.Adapter<UsbViewHolder> {
 	public UsbViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
 		View view = LayoutInflater.from(viewGroup.getContext())
 						.inflate(R.layout.view_usb_card, viewGroup, false);
+	
 
 		return new UsbViewHolder(view);
 	}

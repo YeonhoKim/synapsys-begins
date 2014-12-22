@@ -10,12 +10,12 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/usb_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
    
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go Next" />
+        android:text="@string/usb_card_connection_title" />
 
 </RelativeLayout>

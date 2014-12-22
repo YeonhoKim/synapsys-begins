@@ -15,7 +15,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="107dp"
-        android:text="SYNAPSYS"
+        android:text="@string/app_name"
         android:textColor="#DEDEDE"
         android:textSize="25sp" />
 

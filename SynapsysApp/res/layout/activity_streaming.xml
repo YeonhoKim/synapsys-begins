@@ -50,14 +50,14 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Button1" />
+                android:text="@string/title_setting_section" />
 
             <Button
                 android:id="@+id/button2"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Button2" />
+                android:text="@string/title_setting_section" />
 
             <Space 
                 android:layout_width="0dp"

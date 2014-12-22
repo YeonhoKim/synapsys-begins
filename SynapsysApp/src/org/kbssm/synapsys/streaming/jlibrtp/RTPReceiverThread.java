@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 
-import android.util.Log;
-
 /**
  * The RTP receiver thread waits on the designated UDP socket for new packets.
  * 
