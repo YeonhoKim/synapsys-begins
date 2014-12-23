@@ -18,7 +18,7 @@
     <SlidingDrawer
         android:id="@+id/streaming_menu_drawer"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="120dp"
         android:layout_gravity="bottom"
         android:content="@+id/content"
         android:handle="@+id/handle" >
@@ -26,7 +26,7 @@
         <Button
             android:id="@+id/handle"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="40dp"
             android:background="@drawable/streaming_menu_drawer_selector" />
 
         <LinearLayout

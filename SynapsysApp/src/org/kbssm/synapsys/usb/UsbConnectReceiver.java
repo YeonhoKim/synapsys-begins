@@ -1,5 +1,8 @@
 package org.kbssm.synapsys.usb;
 
+import java.util.Collection;
+import java.util.HashMap;
+
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,7 +23,7 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 	public static final String ACTION_USB_STATE_CHANGED = "android.hardware.usb.action.USB_STATE";
 
 	static final String TAG = "USBConnectReceiver";
-	static final boolean DEBUG = true;
+	static final boolean DEBUG = false;
 	
 	
 	private static UsbConnectReceiver sInstance;
@@ -49,8 +52,11 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 	}
 	
 	private final Context mContextF;
+	private final HashMap<String, UsbConnection> mUsbConnListF;
+	
 	private UsbConnectReceiver(Context context) {
 		mContextF = context;
+		mUsbConnListF = new HashMap<String, UsbConnection>();
 	}
 	
 	@Override
@@ -64,10 +70,15 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 		
 		if (ACTION_USB_STATE_CHANGED.equals(action)) {
 			if (mConnectionStateListener != null) {
-				if (intent.getBooleanExtra("connected", false))
+				if (intent.getBooleanExtra("connected", false)) {
 					mConnectionStateListener.onConnected();
-				else
+					mUsbConnListF.put(null, 
+							new UsbConnection("TEST", UsbConnection.STATE_CONNECTION_INFLOW));
+					
+				} else {
 					mConnectionStateListener.onDisconnected();
+					mUsbConnListF.remove(null);
+				}
 			}
 			
 		} else if (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
@@ -80,6 +91,10 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 
 	public final Context getContext() {
 		return mContextF;
+	}
+	
+	public final Collection<UsbConnection> getConnections() {
+		return mUsbConnListF.values();
 	}
 	
 	/**

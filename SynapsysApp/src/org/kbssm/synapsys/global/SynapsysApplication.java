@@ -6,6 +6,7 @@ import org.kbssm.synapsys.usb.UsbConnectReceiver;
 
 import android.app.Application;
 import android.content.res.Configuration;
+import android.util.Log;
 
 /**
  * 
@@ -20,12 +21,11 @@ public class SynapsysApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Log.d("SynapsysApplication", "onCreate");
 		
 		// Register USB EventReceiver.
 		UsbConnectReceiver.register(this);
 		
-		// System Permission 필요!
-		//USBConnectReceiver.getInstance().setOnUsbConnectionStateListener(this);
 		
 		if (StreamingInflowActivity.IsTCPLegacyMode)
 			return;
@@ -35,12 +35,14 @@ public class SynapsysApplication extends Application {
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
-		
+
+		Log.d("SynapsysApplication", "onCOnfigurationChanged : " + newConfig.toString());
 	}
 	
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
+		Log.d("SynapsysApplication", "onTerminate");
 
 		// Unregister USB EventReceiver.
 		UsbConnectReceiver.unregister();

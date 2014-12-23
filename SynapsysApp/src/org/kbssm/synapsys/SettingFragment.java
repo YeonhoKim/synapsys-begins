@@ -43,5 +43,11 @@ public class SettingFragment extends PreferenceFragment implements NavigationFra
 	public int getNavigationOrder() {
 		return ORDER;
 	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

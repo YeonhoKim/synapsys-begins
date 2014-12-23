@@ -6,6 +6,7 @@ import org.kbssm.synapsys.streaming.StreamingInflowActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,8 +30,6 @@ public class UsbConnectionFragment extends NavigationFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		UsbManager mUsbManager =(UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
-		
 	}
 	
 	private UsbConnectionAdapter mConnectionAdapter;
@@ -40,16 +39,10 @@ public class UsbConnectionFragment extends NavigationFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View createView = inflater.inflate(R.layout.fragment_usb, container, false);
 		
-		createView.findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				startActivity(new Intent(getActivity(), StreamingInflowActivity.class));
-			}
-		});
-		
 		ListView mConnectionListView = (ListView) createView.findViewById(R.id.usb_list_view);
-		mConnectionListView.setAdapter(mConnectionAdapter = new UsbConnectionAdapter());
+		mConnectionListView.setDividerHeight(30);
+		mConnectionListView.setAdapter(mConnectionAdapter = new UsbConnectionAdapter(getActivity()));
+		mConnectionListView.setOnItemClickListener(mConnectionAdapter);
 		
 		return createView;
 	}
@@ -61,22 +54,33 @@ public class UsbConnectionFragment extends NavigationFragment {
 		UsbManager m = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
 		String a = "DEVICE : ";
 		for(String key: m.getDeviceList().keySet())
-			a += (key + " / ");
+			a += (key + " & ");
 		
-		Toast.makeText(getActivity(), a, Toast.LENGTH_LONG).show();
+		String b = "ACCESSORY : ";
+		UsbAccessory[] ua = m.getAccessoryList();
+		if (ua != null)
+			for(UsbAccessory ac: ua)
+				b += (ac.toString() + " & ");
+		
+		Toast.makeText(getActivity(), a+"\n"+b, Toast.LENGTH_SHORT).show();
+		
 		// USB Connected이면, 
 		// Tethering 검사
 		// Tethering 활성화.
 		
-		UsbConnection connection = new UsbConnection();
-		connection.setTitle("TEST");
-		
-		mConnectionAdapter.onRegisteredTethering(connection);
+		refresh();
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
+	}
+
+	@Override
+	public void refresh() {
+		mConnectionAdapter.clear();
+		for (UsbConnection connection : UsbConnectReceiver.getInstance().getConnections())
+			mConnectionAdapter.onRegisteredTethering(connection);
 	}
 	
 	

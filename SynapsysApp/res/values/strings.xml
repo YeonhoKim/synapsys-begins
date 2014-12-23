@@ -19,7 +19,7 @@
 
     
     <string name="USBConnectDialog_forward_dialog_title">USB DETECTED</string>
-    <string name="USBConnectDialog_forward_dialog_content">Do you want to forward to USBConnection? You can handle more details with USB connection.</string>
+    <string name="USBConnectDialog_forward_dialog_content">Do you want to forward to USBConnection?\nYou can handle more details with USB connection.</string>
     <string name="USBConnectDialog_detached_usb">USB has been DETACHED.\nBack to HOME Section.</string>
     
     <string name="streaming_disconnect_toast_message">Streaming Disconnected.</string>
@@ -43,7 +43,8 @@
     <string name="usb_card_connection_connected">CONNECTED</string>
     <string name="usb_card_direction_title">DIRECTION</string>
     <string name="usb_card_direction_inflow">WINDOWS >>> ANDROID</string>
-    
+    <string name="usb_card_displayname_title">DISPLAY NAME</string>
+    <string name="usb_card_displayaddr_title">ADDRESS</string>
     
     <string name="fragment_wireless_warning">Wireless Connection\nis not supported yet :(\nWe will see you soon.</string>
     

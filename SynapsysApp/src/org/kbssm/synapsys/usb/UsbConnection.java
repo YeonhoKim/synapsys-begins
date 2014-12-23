@@ -23,6 +23,7 @@ public class UsbConnection {
 	 */
 	public static final int STATE_CONNECTION_OUTFLOW = 0x13;
 	
+	private static final String UNKNOWN_VALUE = "UNKNOWN";
 	
 	
 	// *** FIELDS *** //
@@ -32,14 +33,24 @@ public class UsbConnection {
 	
 	private int mConnectionState;
 	
+	private String mDisplayName;
+	
+	private String mDisplayAddress;
 	
 	
 	// *** CONSTRUCTORS *** //
 	public UsbConnection() {
-		
+		this(null, STATE_CONNECTION_NONE);
+	}
+	
+	public UsbConnection(String title, int state) {
+
 		// DEFAULT VALUES
+		mTitle = title;
 		mBackgroundRes = R.drawable.ic_launcher;
-		mConnectionState = STATE_CONNECTION_NONE;
+		mConnectionState = state;
+		mDisplayName = UNKNOWN_VALUE;
+		mDisplayAddress = UNKNOWN_VALUE;
 	}
 
 	
@@ -92,6 +103,21 @@ public class UsbConnection {
 		this.mConnectionState = connectionState;
 	}
 	
-	
+	public String getDisplayName() {
+		return mDisplayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.mDisplayName = displayName;
+	}
+
+	public String getDisplayAddress() {
+		return mDisplayAddress;
+	}
+
+	public void setDisplayAddress(String displayAddress) {
+		this.mDisplayAddress = displayAddress;
+	}
+
 	
 }

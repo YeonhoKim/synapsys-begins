@@ -31,5 +31,11 @@ public class WirelessConnectionFragment extends NavigationFragment {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

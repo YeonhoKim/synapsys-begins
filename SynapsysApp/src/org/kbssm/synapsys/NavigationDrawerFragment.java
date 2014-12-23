@@ -289,4 +289,8 @@ public class NavigationDrawerFragment extends Fragment {
 	public void performItemClick(int position) {
 		selectItem(position);
 	}
+	
+	public int getCurrentTabPosition() {
+		return mCurrentSelectedPosition;
+	}
 }

@@ -31,4 +31,10 @@ public class HomeFragment extends NavigationFragment implements OnClickListener{
 		
 		}
 	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+		
+	}
 }
