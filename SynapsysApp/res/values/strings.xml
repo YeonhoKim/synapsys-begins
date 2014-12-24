@@ -50,4 +50,6 @@
     
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
+    
+    <string name="ip_error">Wrong IP address</string>
 </resources>

@@ -2,8 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
-    android:background="@drawable/usb_card_shape_selector" >
+    android:background="@drawable/usb_card_shape_selector"
+    android:padding="10dp" >
 
     <ImageView
         android:id="@+id/usb_card_background_image"
@@ -73,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="3" />
         </TableRow>
-        
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -92,8 +92,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3" />
-    	</TableRow>
-    	 
+        </TableRow>
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -112,7 +112,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3" />
-    	</TableRow>
+        </TableRow>
     </TableLayout>
+
 
 </RelativeLayout>

@@ -2,16 +2,15 @@ package org.kbssm.synapsys.usb;
 
 import org.kbssm.synapsys.NavigationFragment;
 import org.kbssm.synapsys.R;
-import org.kbssm.synapsys.streaming.StreamingInflowActivity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -39,9 +38,11 @@ public class UsbConnectionFragment extends NavigationFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View createView = inflater.inflate(R.layout.fragment_usb, container, false);
 		
+		EditText addressText = (EditText) createView.findViewById(R.id.usb_card_displayaddr_edit);
+		
 		ListView mConnectionListView = (ListView) createView.findViewById(R.id.usb_list_view);
 		mConnectionListView.setDividerHeight(30);
-		mConnectionListView.setAdapter(mConnectionAdapter = new UsbConnectionAdapter(getActivity()));
+		mConnectionListView.setAdapter(mConnectionAdapter = new UsbConnectionAdapter(getActivity(), addressText));
 		mConnectionListView.setOnItemClickListener(mConnectionAdapter);
 		
 		return createView;

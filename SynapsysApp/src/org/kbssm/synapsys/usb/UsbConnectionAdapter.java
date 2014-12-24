@@ -1,5 +1,7 @@
 package org.kbssm.synapsys.usb;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +56,14 @@ public class UsbConnectionAdapter extends BaseAdapter implements OnItemClickList
 	public UsbConnectionAdapter(Context context) {
 		mContextF = context;
 		mConnectionListF = new ArrayList<UsbConnection>();
+	}
+	
+	private EditText addrText;
+	
+	public UsbConnectionAdapter(Context context, EditText editText) {
+		mContextF = context;
+		mConnectionListF = new ArrayList<UsbConnection>();
+		addrText = editText;
 	}
 	
 	public void onRegisteredTethering(UsbConnection connection) {
@@ -101,10 +112,27 @@ public class UsbConnectionAdapter extends BaseAdapter implements OnItemClickList
 		UsbConnection usbConn = mConnectionListF.get(position);
 		view.performClick();
 		
+		
+		InetAddress addr = null;
+		try {
+			if (addrText == null)
+				return;
+			
+			addr = InetAddress.getByAddress(addrText.getText().toString().getBytes());
+		
+		} catch (UnknownHostException e) {
+			Toast.makeText(mContextF, R.string.ip_error, Toast.LENGTH_SHORT).show();
+			return ;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+		
 		switch (usbConn.getConnectionState()) {
 		case UsbConnection.STATE_CONNECTION_INFLOW:
 			Intent intent = new Intent(mContextF, StreamingInflowActivity.class);
-			
+			intent.putExtra("ip", addr.getAddress().toString());
 			mContextF.startActivity(intent);			
 			return;
 			

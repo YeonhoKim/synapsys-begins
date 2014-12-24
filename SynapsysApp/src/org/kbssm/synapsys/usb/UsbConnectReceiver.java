@@ -3,6 +3,8 @@ package org.kbssm.synapsys.usb;
 import java.util.Collection;
 import java.util.HashMap;
 
+import org.kbssm.synapsys.global.SynapsysApplication;
+
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,7 +34,7 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 		return sInstance;
 	}
 	
-	public static void register(Application context) {
+	public static void register(SynapsysApplication context) {
 		final IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_USB_STATE_CHANGED);
 		//filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
@@ -51,10 +53,10 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 		}
 	}
 	
-	private final Context mContextF;
+	private final SynapsysApplication mContextF;
 	private final HashMap<String, UsbConnection> mUsbConnListF;
 	
-	private UsbConnectReceiver(Context context) {
+	private UsbConnectReceiver(SynapsysApplication context) {
 		mContextF = context;
 		mUsbConnListF = new HashMap<String, UsbConnection>();
 	}
@@ -71,11 +73,13 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 		if (ACTION_USB_STATE_CHANGED.equals(action)) {
 			if (mConnectionStateListener != null) {
 				if (intent.getBooleanExtra("connected", false)) {
+					mContextF.onConnected();
 					mConnectionStateListener.onConnected();
 					mUsbConnListF.put(null, 
 							new UsbConnection("TEST", UsbConnection.STATE_CONNECTION_INFLOW));
 					
 				} else {
+					mContextF.onDisconnected();
 					mConnectionStateListener.onDisconnected();
 					mUsbConnListF.remove(null);
 				}

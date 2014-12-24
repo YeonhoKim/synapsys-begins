@@ -54,6 +54,8 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 		mProgressDialog.setTitle("Streaming...");
 		// mProgressDialog.show();
 
+		final String SERVER_IP = getIntent().getStringExtra("ip");
+		
 		if (IsTCPLegacyMode) {
 			// Deprecated if launched.
 			final OldStreamingView view = (OldStreamingView) findViewById(R.id.streaming_mjpeg);
@@ -62,11 +64,11 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 			new Thread() {
 				public void run() {
 					try {
-						ServerSocket server = new ServerSocket(1114);
-						server.setSoTimeout(60000);
-
-						Socket socket = server.accept();
-						// Socket socket = new Socket("192.168.42.120", 1113);
+						//ServerSocket server = new ServerSocket(1114);
+						//server.setSoTimeout(60000);
+						
+						//Socket socket = server.accept();
+						Socket socket = new Socket(SERVER_IP, 1114);
 
 						handler.post(new Runnable() {
 							@Override
@@ -76,7 +78,7 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 										.show();
 							}
 						});
-						server.close();
+						//server.close();
 
 						view.setSource(new OldStreamingView.MjpegInputStream(
 								socket.getInputStream()));
