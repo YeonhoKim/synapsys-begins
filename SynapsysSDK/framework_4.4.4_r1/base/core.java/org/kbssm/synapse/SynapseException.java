@@ -1,4 +1,4 @@
-package kbssm.synapse;
+package org.kbssm.synapse;
 
 /**
  * 

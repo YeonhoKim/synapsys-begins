@@ -1,6 +1,5 @@
-package kbssm.synapse;
+package org.kbssm.synapse;
 
-import kbssm.synapse.display.SynapseDisplayOperator;
 import android.content.Context;
 
 /**
@@ -9,15 +8,13 @@ import android.content.Context;
  * @author Yeonho.Kim
  *
  */
-class SynapseInteraction implements ISynapse {
+class SynapseInteraction {
 
 	/******************************************************************
  		FIELDS
 	 ******************************************************************/
 	/** */
 	private final Context mContextF;
-	
-	private SynapseDisplayOperator mOperator;
 	
 	
 	/******************************************************************
@@ -27,15 +24,10 @@ class SynapseInteraction implements ISynapse {
 	public SynapseInteraction(SynapseManager manager) {
 		this.mContextF = manager.getContext();
 		
-		mOperator = new SynapseDisplayOperator();
 	}
 
-
-
-	@Override
 	public void destroy() {
 		
 	}
-	
 	
 }

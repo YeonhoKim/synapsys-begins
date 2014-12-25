@@ -1,4 +1,4 @@
-package kbssm.synapse;
+package org.kbssm.synapse;
 
 /**
  * Synapse 연결에 대한 Interface를 정의한다.
@@ -6,25 +6,27 @@ package kbssm.synapse;
  * @author Yeonho.Kim
  *
  */
-public interface ISynapseConnect {
+public interface ISynapse {
+	
+	public static final int INFLOW_SERVER_PORT = 11013;
 	
 	/**
 	 * 상대 PC로 연결을 수행한다.
 	 * @return
 	 */
-	boolean connect();
+	boolean synapse();
 	
 	/**
 	 * 연결된 PC와의 접속을 종료한다.
 	 * @return
 	 */
-	boolean disconnect();
+	boolean insynapse();
 	
 	/**
 	 * 재 접속을 시도한다.
 	 * @return
 	 */
-	boolean reconnect();
+	boolean resynapse();
 	
 	/**
 	 * 연결을 잠시 중지한다.
@@ -37,10 +39,4 @@ public interface ISynapseConnect {
 	 * @return
 	 */
 	boolean resume();
-	
-	/**
-	 * USB 테더링을 설정한다.
-	 * @param enable
-	 */
-	void setUsbTethering(boolean enable);
 }
