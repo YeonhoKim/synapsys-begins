@@ -1,5 +1,6 @@
 package org.kbssm.synapsys.streaming;
 
+import java.io.IOException;
 import java.net.Socket;
 
 import org.kbssm.synapsys.R;
@@ -19,7 +20,8 @@ import android.widget.Toast;
  *
  */
 public class StreamingInflowActivity extends Activity implements View.OnClickListener{
-
+	public static final int BASE_PORT = 11013;
+	
 	private SynapsysApplication mSynapsysApp;
 	private StreamingView mStreamingView;
 	private ProgressDialog mProgressDialog;
@@ -34,6 +36,8 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 	public static final boolean IsTCPLegacyMode = true;
 
 	public Handler handler = new Handler();
+	
+	private Socket socket;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +58,7 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 		// mProgressDialog.show();
 
 		final String SERVER_IP = getIntent().getStringExtra("ip");
+		final int seq = Integer.parseInt(SERVER_IP.split("192.168.42.")[1]);
 		
 		if (IsTCPLegacyMode) {
 			// Deprecated if launched.
@@ -67,7 +72,7 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 						//server.setSoTimeout(60000);
 						
 						//Socket socket = server.accept();
-						Socket socket = new Socket(SERVER_IP, 1114);
+						socket = new Socket(SERVER_IP, BASE_PORT+seq);
 
 						handler.post(new Runnable() {
 							@Override
@@ -138,6 +143,15 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		
+		if (socket != null) {
+			try {
+				socket.close();
+				
+			} catch (IOException e) {
+				
+			}
+		}
 	}
 
 	@Override

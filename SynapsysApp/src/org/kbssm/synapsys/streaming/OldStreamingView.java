@@ -333,14 +333,6 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 		public Bitmap readMjpegFrame() throws IOException {
 			mark(FRAME_MAX_LENGTH);
 			final int headerLen = getStartOfSequence(this, SOI_MARKER);
-			// TOAST
-						((StreamingInflowActivity) context).handler.post(new Runnable() {
-							@Override
-							public void run() {
-								mToast.setText("HEADER SIZE : " + headerLen);
-								mToast.show();
-							}
-						});
 			
 			reset();
 			byte[] header = new byte[headerLen];

@@ -12,7 +12,6 @@ import org.kbssm.synapsys.usb.UsbConnectReceiver;
 import org.kbssm.synapsys.usb.UsbConnection;
 
 import android.app.Application;
-import android.app.ProgressDialog;
 import android.content.res.Configuration;
 import android.os.Handler;
 import android.util.Log;
@@ -41,7 +40,6 @@ public class SynapsysApplication extends Application implements ISynapseListener
 	private HashSet<UsbConnection> mUsbConnectionSet;
 	
 	private Toast mToast;
-	private ProgressDialog mProgressDialog;
 
 	private String mConnectedAddress;
 	
@@ -50,9 +48,6 @@ public class SynapsysApplication extends Application implements ISynapseListener
 		super.onCreate();
 
 		try {
-			// Register USB EventReceiver.
-			UsbConnectReceiver.register(this);
-
 			mSynapseManager = SynapseManager.getInstance(this, this);
 
 			
@@ -62,9 +57,6 @@ public class SynapsysApplication extends Application implements ISynapseListener
 		}
 
 		mUsbConnectionSet = new HashSet<UsbConnection>();
-		
-		mProgressDialog = new ProgressDialog(this);
-		mProgressDialog.setTitle("Detecting...");
 		
 		mToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
 
@@ -84,10 +76,6 @@ public class SynapsysApplication extends Application implements ISynapseListener
 		
 		if (mSynapseManager != null)
 			mSynapseManager.destroy();
-
-		// Unregister USB EventReceiver.
-		UsbConnectReceiver.unregister();
-
 	}
 
 	public boolean checkUSBConnected() {
@@ -110,10 +98,7 @@ public class SynapsysApplication extends Application implements ISynapseListener
 
 	@Override
 	public void onDetectingStateChanged(boolean enabled) {
-		if (enabled) 
-			mProgressDialog.show();
-		else
-			mProgressDialog.dismiss();
+		
 	}
 
 	@Override
@@ -161,10 +146,6 @@ public class SynapsysApplication extends Application implements ISynapseListener
 			}
 			
 		}
-	}
-
-	public void setUsbTethering(boolean enable) {
-		mSynapseManager.setUsbTethering(enable);
 	}
 
 	

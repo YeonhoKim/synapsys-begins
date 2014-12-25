@@ -92,6 +92,8 @@ public class UsbConnectReceiver extends BroadcastReceiver {
             
             boolean connected = intent.getBooleanExtra("connected", false);
             
+            Toast.makeText(mApplicationF, "RndisEnable :" + mRndisEnabled +"\nConnected :" + connected, Toast.LENGTH_SHORT).show();
+            
             if (!mRndisEnabled && connected) {
         			// 테더링 설정이 되지 않은 상태에서 USB연결을 인식할 때,
             	
@@ -102,7 +104,7 @@ public class UsbConnectReceiver extends BroadcastReceiver {
             	
             } else if (mRndisEnabled && !connected) {
             			// 테더링 설정된 상태에서 USB연결이 해제될 때,
-            	mApplicationF.setUsbTethering(false);
+            	//mApplicationF.getSynapseManager().setUsbTethering(false);
             	
             } else if (!mRndisEnabled && !connected) {
     				// 테더링 설정이 안 된 상태에서 USB연결이 해제될 때,

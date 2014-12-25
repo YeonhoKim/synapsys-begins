@@ -17,6 +17,7 @@
     
     <string name="action_settings">Settings</string>
 
+    <string name="detecting_address_dialog_title">Detecting Address...</string>
     
     <string name="USBConnectDialog_forward_dialog_title">USB DETECTED</string>
     <string name="USBConnectDialog_forward_dialog_content">Do you want to forward to USBConnection?\nYou can handle more details with USB connection.</string>

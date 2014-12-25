@@ -2,6 +2,8 @@ package org.kbssm.synapsys;
 
 import org.kbssm.synapse.SynapseException;
 import org.kbssm.synapse.SynapseManager;
+import org.kbssm.synapsys.global.SynapsysApplication;
+import org.kbssm.synapsys.global.SynapsysListener;
 import org.kbssm.synapsys.usb.UsbConnectReceiver;
 import org.kbssm.synapsys.usb.UsbConnectReceiver.OnUsbConnectionStateListener;
 
@@ -9,12 +11,14 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Toast;
 
 /**
@@ -29,6 +33,11 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
  		FIELDS
 	 ******************************************************************/
 	/**
+	 * 
+	 */
+	private SynapsysApplication mApplication;
+	
+	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
 	 * navigation drawer.
 	 */
@@ -39,9 +48,13 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	 * {@link #restoreActionBar()}.
 	 */
 	private CharSequence mTitle;
-	
-	
+
 	private AlertDialog mUSBConnectDialog;
+	
+	private OnUsbConnectionStateListener mUsbConnectionStateListener;
+	
+	private SynapsysListener mSynapseListener;
+	
 
 
 	/******************************************************************
@@ -51,22 +64,24 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.activity_main);
-		Log.d("MainActivity", "onCreate");
-
+		setProgressBarIndeterminate(true);
+		
+		mApplication = (SynapsysApplication) getApplication();
+		
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager()
 										.findFragmentById(R.id.main_navigation_drawer);
-		mTitle = getTitle();
 		
-		// Set up the drawer.
 		mNavigationDrawerFragment.setUp( R.id.main_navigation_drawer,
 										(DrawerLayout) findViewById(R.id.main_drawer_layout) );
 		
 		init();
-		
 	}
 
 	void init () {
+		mTitle = getTitle();
+		
 		DialogInterface.OnClickListener mOnClickListener = new DialogInterface.OnClickListener() {
 			
 			@Override
@@ -85,6 +100,42 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 							.setPositiveButton(R.string.confirm, mOnClickListener)
 							.setNegativeButton(R.string.cancel, mOnClickListener)
 							.create();
+		
+		mUsbConnectionStateListener = new OnUsbConnectionStateListener() {
+			@Override
+			public void onDisconnected() {
+				Toast.makeText(getBaseContext(), R.string.USBConnectDialog_detached_usb, Toast.LENGTH_SHORT).show();
+				mNavigationDrawerFragment.performItemClick(0);
+			}
+			
+			@Override
+			public void onConnected() {
+				if (mNavigationDrawerFragment.getCurrentTabPosition() == 1) {
+					ContentFragmentHolder.getInstance(1).refresh();
+					
+				} else if (mUSBConnectDialog != null)
+					mUSBConnectDialog.show();
+				
+			}
+		};
+		
+		mSynapseListener = new SynapsysListener(this) {
+			
+			@Override
+			public void onDetectingStateChanged(boolean enabled) {
+				super.onDetectingStateChanged(enabled);
+	
+				setProgressBarIndeterminateVisibility(enabled);
+			}
+			
+			@Override
+			public void onConnectedStateDetected(String address) {
+				super.onConnectedStateDetected(address);
+				
+				ContentFragmentHolder.getInstance(mNavigationDrawerFragment.getCurrentTabPosition()).refresh();
+			}
+		};
+		
 	}
 	
 	@Override
@@ -93,32 +144,22 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		Log.d("MainActivity", "onResume");
 
 		// USB 연결 이벤트 발생시, 처리할 로직 Interface를 등록한다.
+		UsbConnectReceiver.register(mApplication);
 		UsbConnectReceiver receiver = UsbConnectReceiver.getInstance();
-		if (receiver != null) {
-			receiver.setOnUsbConnectionStateListener(new OnUsbConnectionStateListener() {
-				@Override
-				public void onDisconnected() {
-					Toast.makeText(getBaseContext(), R.string.USBConnectDialog_detached_usb, Toast.LENGTH_SHORT).show();
-					mNavigationDrawerFragment.performItemClick(0);
-				}
-				
-				@Override
-				public void onConnected() {
-					if (mNavigationDrawerFragment.getCurrentTabPosition() == 1) {
-						ContentFragmentHolder.getInstance(1).refresh();
-						
-					} else if (mUSBConnectDialog != null)
-						mUSBConnectDialog.show();
-					
-				}
-			});
-		}
+		if (receiver != null) 
+			receiver.setOnUsbConnectionStateListener(mUsbConnectionStateListener);
+		
+		
+		mApplication.getSynapseManager().setSynapsysListener(mSynapseListener);
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
 		Log.d("MainActivity", "onPause");
+		
+		mApplication.getSynapseManager().setSynapsysListener(null);
+		UsbConnectReceiver.unregister();
 	}
 	
 	@Override
@@ -173,13 +214,9 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
 		switch (item.getItemId()) {
-		case R.id.action_refresh:
-			try {
-				SynapseManager.getInstance(this, null).findConnectedAddress();
-				
-			} catch (SynapseException e) {
-				
-			}
+		case R.id.menu_refresh:
+			mApplication.getSynapseManager().findConnectedAddress();
+			Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
 			break;
 		}
 		

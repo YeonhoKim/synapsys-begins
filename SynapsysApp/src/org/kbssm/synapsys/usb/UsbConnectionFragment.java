@@ -49,6 +49,14 @@ public class UsbConnectionFragment extends NavigationFragment {
 		
 		SynapsysListener mSynapsysListener = new SynapsysListener(getActivity()) {
 			
+			
+			@Override
+			public void onDetectingStateChanged(boolean enabled) {
+				super.onDetectingStateChanged(enabled);
+				
+				getActivity().setProgressBarIndeterminateVisibility(enabled);
+			}
+			
 			@Override
 			public void onConnectedStateDetected(String address) {
 				super.onConnectedStateDetected(address);
@@ -58,14 +66,7 @@ public class UsbConnectionFragment extends NavigationFragment {
 			}
 		};
 		
-		try {
-			mSynapseManager = SynapseManager.getInstance(getActivity(), null);
-			mSynapseManager.setSynapsysListener(mSynapsysListener);
-			
-			
-		} catch (SynapseException e) {
-			e.printStackTrace();
-		}
+		mApplication.getSynapseManager().setSynapsysListener(mSynapsysListener);
 	}
 	
 	
