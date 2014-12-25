@@ -113,12 +113,11 @@ public class UsbConnectionAdapter extends BaseAdapter implements OnItemClickList
 		view.performClick();
 		
 		
-		InetAddress addr = null;
 		try {
 			if (addrText == null)
 				return;
 			
-			addr = InetAddress.getByAddress(addrText.getText().toString().getBytes());
+			InetAddress.getByName(addrText.getText().toString());
 		
 		} catch (UnknownHostException e) {
 			Toast.makeText(mContextF, R.string.ip_error, Toast.LENGTH_SHORT).show();
@@ -132,7 +131,7 @@ public class UsbConnectionAdapter extends BaseAdapter implements OnItemClickList
 		switch (usbConn.getConnectionState()) {
 		case UsbConnection.STATE_CONNECTION_INFLOW:
 			Intent intent = new Intent(mContextF, StreamingInflowActivity.class);
-			intent.putExtra("ip", addr.getAddress().toString());
+			intent.putExtra("ip", addrText.getText().toString());
 			mContextF.startActivity(intent);			
 			return;
 			

@@ -1,7 +1,12 @@
 package org.kbssm.synapsys.usb;
 
+import org.kbssm.synapse.ISynapseListener;
+import org.kbssm.synapse.SynapseException;
+import org.kbssm.synapse.SynapseManager;
 import org.kbssm.synapsys.NavigationFragment;
 import org.kbssm.synapsys.R;
+import org.kbssm.synapsys.global.SynapsysApplication;
+import org.kbssm.synapsys.global.SynapsysListener;
 
 import android.content.Context;
 import android.hardware.usb.UsbAccessory;
@@ -21,17 +26,48 @@ import android.widget.Toast;
  */
 public class UsbConnectionFragment extends NavigationFragment {
 
+	private SynapsysApplication mApplication;
+	private SynapseManager mSynapseManager;
+	
+	private UsbConnectionAdapter mConnectionAdapter;
+	
 	public UsbConnectionFragment() {
 		ORDER = 1;
 	}
+
 	
+	
+	/******************************************************************
+		LIFECYCLE
+	 ******************************************************************/
+	/** */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		mApplication = (SynapsysApplication) getActivity().getApplication();
+		
+		SynapsysListener mSynapsysListener = new SynapsysListener(getActivity()) {
+			
+			@Override
+			public void onConnectedStateDetected(String address) {
+				super.onConnectedStateDetected(address);
+				
+				EditText addressText = (EditText) getView().findViewById(R.id.usb_card_displayaddr_edit);
+				addressText.setText(address);
+			}
+		};
+		
+		try {
+			mSynapseManager = SynapseManager.getInstance(getActivity(), null);
+			mSynapseManager.setSynapsysListener(mSynapsysListener);
+			
+			
+		} catch (SynapseException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private UsbConnectionAdapter mConnectionAdapter;
 	
 	
 	@Override
@@ -49,25 +85,33 @@ public class UsbConnectionFragment extends NavigationFragment {
 	}
 	
 	@Override
+	public void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+	}
+	
+	@Override
 	public void onResume() {
 		super.onResume();
-		
-		UsbManager m = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
-		String a = "DEVICE : ";
-		for(String key: m.getDeviceList().keySet())
-			a += (key + " & ");
-		
-		String b = "ACCESSORY : ";
-		UsbAccessory[] ua = m.getAccessoryList();
-		if (ua != null)
-			for(UsbAccessory ac: ua)
-				b += (ac.toString() + " & ");
-		
-		Toast.makeText(getActivity(), a+"\n"+b, Toast.LENGTH_SHORT).show();
 		
 		// USB Connected이면, 
 		// Tethering 검사
 		// Tethering 활성화.
+		
+		try {
+			SynapseManager mSynapseManager = SynapseManager.getInstance(getActivity(), null);
+			
+			String address = mSynapseManager.getTetheredAddress();
+			if (address == null)
+				mSynapseManager.findConnectedAddress();
+			
+			EditText addressText = (EditText) getView().findViewById(R.id.usb_card_displayaddr_edit);
+			addressText.setText(address);
+			
+		} catch (SynapseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		refresh();
 	}
@@ -77,13 +121,23 @@ public class UsbConnectionFragment extends NavigationFragment {
 		super.onPause();
 	}
 
+	
+	
+	/******************************************************************
+ 		CALLBACKS
+	 ******************************************************************/
+	/** */
 	@Override
 	public void refresh() {
 		mConnectionAdapter.clear();
-		for (UsbConnection connection : UsbConnectReceiver.getInstance().getConnections())
+		for (UsbConnection connection : mApplication.getConnections())
 			mConnectionAdapter.onRegisteredTethering(connection);
 	}
 	
 	
-	
+
+	/******************************************************************
+ 		GETTER & SETTER
+	 ******************************************************************/
+	/** */
 }

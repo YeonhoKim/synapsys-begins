@@ -1,6 +1,5 @@
 package org.kbssm.synapsys.streaming;
 
-import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.kbssm.synapsys.R;

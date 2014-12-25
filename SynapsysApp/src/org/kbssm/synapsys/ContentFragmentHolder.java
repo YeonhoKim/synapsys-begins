@@ -5,8 +5,6 @@ import org.kbssm.synapsys.wireless.WirelessConnectionFragment;
 
 
 /**
- * {@link NavigationDrawerFragment}���� �ٷ� Fragment���� �ٷ�� Holder Class.
- * 
  * @author Yeonho.Kim
  *
  */

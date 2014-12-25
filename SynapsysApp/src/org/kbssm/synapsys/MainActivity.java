@@ -1,5 +1,7 @@
 package org.kbssm.synapsys;
 
+import org.kbssm.synapse.SynapseException;
+import org.kbssm.synapse.SynapseManager;
 import org.kbssm.synapsys.usb.UsbConnectReceiver;
 import org.kbssm.synapsys.usb.UsbConnectReceiver.OnUsbConnectionStateListener;
 
@@ -23,6 +25,9 @@ import android.widget.Toast;
  */
 public class MainActivity extends Activity implements NavigationDrawerCallbacks {
 
+	/******************************************************************
+ 		FIELDS
+	 ******************************************************************/
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
 	 * navigation drawer.
@@ -38,6 +43,11 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	
 	private AlertDialog mUSBConnectDialog;
 
+
+	/******************************************************************
+		LIFECYCLE
+	 ******************************************************************/
+	/** */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,7 +64,6 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		
 		init();
 		
-
 	}
 
 	void init () {
@@ -127,6 +136,11 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 							.commit();
 	}
 
+
+	/******************************************************************
+		METHODS
+	 ******************************************************************/
+	/** */
 	public void onSectionAttached(int number) {
 		switch (number) {
 		case 0:
@@ -159,7 +173,14 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
 		switch (item.getItemId()) {
-		
+		case R.id.action_refresh:
+			try {
+				SynapseManager.getInstance(this, null).findConnectedAddress();
+				
+			} catch (SynapseException e) {
+				
+			}
+			break;
 		}
 		
 		return super.onOptionsItemSelected(item);

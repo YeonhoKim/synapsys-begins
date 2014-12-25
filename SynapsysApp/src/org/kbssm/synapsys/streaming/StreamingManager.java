@@ -58,6 +58,8 @@ public class StreamingManager {
 	private RTPSession mRTPsession;
 	private InetSocketAddress mConnectedIP;
 	
+	private String mConnectedAddress;
+	
 	private StreamingManager() {
 		init();
 	}
@@ -86,6 +88,10 @@ public class StreamingManager {
 	public void destroy() {
 		if (mRTPsession != null)
 			mRTPsession.endSession();
+	}
+	
+	public void setReady(String address) {
+		mConnectedAddress = address;
 	}
 	
 	public void requestStreamingStart() {

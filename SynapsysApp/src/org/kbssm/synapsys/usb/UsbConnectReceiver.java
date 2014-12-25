@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import org.kbssm.synapsys.global.SynapsysApplication;
 
-import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,12 +21,22 @@ import android.widget.Toast;
  */
 public class UsbConnectReceiver extends BroadcastReceiver {
 
+	/******************************************************************
+ 		CONSTANTS
+	 ******************************************************************/
 	public static final String ACTION_USB_STATE_CHANGED = "android.hardware.usb.action.USB_STATE";
 
-	static final String TAG = "USBConnectReceiver";
-	static final boolean DEBUG = false;
+	protected static final String TAG = "USBConnectReceiver";
+	protected static final boolean DEBUG = false;
 	
+
 	
+	/******************************************************************
+ 		STATICS
+	 ******************************************************************/
+	/**
+	 * Singleton Instance
+	 */
 	private static UsbConnectReceiver sInstance;
 	
 	public static final UsbConnectReceiver getInstance() {
@@ -53,12 +62,20 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 		}
 	}
 	
-	private final SynapsysApplication mContextF;
-	private final HashMap<String, UsbConnection> mUsbConnListF;
+
+	
+	/******************************************************************
+ 		FIELDS
+	 ******************************************************************/
+	/**
+	 * 
+	 */
+	private final SynapsysApplication mApplicationF;
+	
+	private boolean mRndisEnabled;
 	
 	private UsbConnectReceiver(SynapsysApplication context) {
-		mContextF = context;
-		mUsbConnListF = new HashMap<String, UsbConnection>();
+		mApplicationF = context;
 	}
 	
 	@Override
@@ -71,38 +88,59 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 		}
 		
 		if (ACTION_USB_STATE_CHANGED.equals(action)) {
-			if (mConnectionStateListener != null) {
-				if (intent.getBooleanExtra("connected", false)) {
-					mContextF.onConnected();
+            mRndisEnabled = intent.getBooleanExtra(UsbManager.USB_FUNCTION_RNDIS, false);
+            
+            boolean connected = intent.getBooleanExtra("connected", false);
+            
+            if (!mRndisEnabled && connected) {
+        			// 테더링 설정이 되지 않은 상태에서 USB연결을 인식할 때,
+            	
+            	mApplicationF.onConnected();
+            	
+            	if (mConnectionStateListener != null)
+            		mConnectionStateListener.onConnected();
+            	
+            } else if (mRndisEnabled && !connected) {
+            			// 테더링 설정된 상태에서 USB연결이 해제될 때,
+            	mApplicationF.setUsbTethering(false);
+            	
+            } else if (!mRndisEnabled && !connected) {
+    				// 테더링 설정이 안 된 상태에서 USB연결이 해제될 때,
+            	
+            	mApplicationF.onDisconnected();
+            	
+            	if (mConnectionStateListener != null)
+            		mConnectionStateListener.onDisconnected();
+            }
+            
+			/*if (mConnectionStateListener != null) {
+				if (connected) {
+					mApplicationF.onConnected();
 					mConnectionStateListener.onConnected();
 					mUsbConnListF.put(null, 
 							new UsbConnection("TEST", UsbConnection.STATE_CONNECTION_INFLOW));
 					
 				} else {
-					mContextF.onDisconnected();
+					mApplicationF.onDisconnected();
 					mConnectionStateListener.onDisconnected();
 					mUsbConnListF.remove(null);
 				}
-			}
+			}*/
 			
-		} else if (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
-			// NOT FILTERED
-			
-		} else if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
-			// NOT FILTERED
+//		} else if (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(action)) {
+//			// NOT FILTERED
+//			
+//		} else if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
+//			// NOT FILTERED
 		} 
 	}
 
 	public final Context getContext() {
-		return mContextF;
-	}
-	
-	public final Collection<UsbConnection> getConnections() {
-		return mUsbConnListF.values();
+		return mApplicationF;
 	}
 	
 	/**
-	 * USB 연결에 관련된 이벤트가 발생하였을 때, 수행할 작업을 정의하는 Interface.
+	 *  순수 USB 연결에 대한 이벤트가 발생하였을 때, 수행할 작업을 정의하는 Interface.
 	 * 
 	 * @author Yeonho.Kim
 	 *
@@ -114,8 +152,16 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 		public void onDisconnected();
 	}
 	
+	/**
+	 *  연결 상태 메시지를 전달받고자 하는 Listener 객체.
+	 */
 	private OnUsbConnectionStateListener mConnectionStateListener;
 	
+	/**
+	 * Listener 객체 등록.
+	 * 
+	 * @param listener
+	 */
 	public void setOnUsbConnectionStateListener(OnUsbConnectionStateListener listener) {
 		mConnectionStateListener = listener;
 	}
