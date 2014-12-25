@@ -1,22 +1,25 @@
 package org.kbssm.synapsys;
 
-import org.kbssm.synapsys.usb.USBConnectReceiver;
+import org.kbssm.synapse.SynapseException;
+import org.kbssm.synapse.SynapseManager;
+import org.kbssm.synapsys.global.SynapsysApplication;
+import org.kbssm.synapsys.global.SynapsysListener;
+import org.kbssm.synapsys.usb.UsbConnectReceiver;
+import org.kbssm.synapsys.usb.UsbConnectReceiver.OnUsbConnectionStateListener;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.hardware.usb.UsbAccessory;
-import android.hardware.usb.UsbManager;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.widget.Toast;
 
 /**
  * The main activity that starts "Synapsys" operations.
@@ -26,6 +29,14 @@ import android.view.MenuItem;
  */
 public class MainActivity extends Activity implements NavigationDrawerCallbacks {
 
+	/******************************************************************
+ 		FIELDS
+	 ******************************************************************/
+	/**
+	 * 
+	 */
+	private SynapsysApplication mApplication;
+	
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
 	 * navigation drawer.
@@ -38,63 +49,124 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	 */
 	private CharSequence mTitle;
 
+	private AlertDialog mUSBConnectDialog;
+	
+	private OnUsbConnectionStateListener mUsbConnectionStateListener;
+	
+	private SynapsysListener mSynapseListener;
+	
+
+
+	/******************************************************************
+		LIFECYCLE
+	 ******************************************************************/
+	/** */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.activity_main);
-
+		setProgressBarIndeterminate(true);
+		
+		mApplication = (SynapsysApplication) getApplication();
+		
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager()
 										.findFragmentById(R.id.main_navigation_drawer);
-		mTitle = getTitle();
-
-		// Set up the drawer.
-		mNavigationDrawerFragment.setUp(
-				R.id.main_navigation_drawer,
-				(DrawerLayout) findViewById(R.id.main_drawer_layout) );
 		
-		// Register USB EventReceiver.
-		USBConnectReceiver.register(this);
+		mNavigationDrawerFragment.setUp( R.id.main_navigation_drawer,
+										(DrawerLayout) findViewById(R.id.main_drawer_layout) );
 		
 		init();
 	}
 
-
-	private static final String ACTION_USB_PERMISSION =
-		    "com.android.example.USB_PERMISSION";
-	private final BroadcastReceiver mUsbReceiver =new BroadcastReceiver(){
-	    public void onReceive(Context context,Intent intent){
-	        String action = intent.getAction();
-	        if(ACTION_USB_PERMISSION.equals(action)){
-	            synchronized(this){
-	                UsbAccessory accessory =(UsbAccessory) intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
-	                if(intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,false)){
-	                    if(accessory !=null){
-	                        //æ◊ººº≠øÕ ≈ÎΩ≈«œ±‚ ¿ß«— º≥¡§ ƒ⁄µÂ
-	                    }
-	                }
-	                else{
-	                    Log.d("","permission denied for accessory "+ accessory);
-	                }
-	            }
-	        }
-	    }
-	};
 	void init () {
-		UsbManager mUsbManager =(UsbManager) getSystemService(Context.USB_SERVICE);
-	
-		PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this,0,new Intent(ACTION_USB_PERMISSION),0);
-		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-		registerReceiver(mUsbReceiver, filter);
+		mTitle = getTitle();
 		
-		UsbAccessory accessory =(UsbAccessory)getIntent().getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
-		mUsbManager.requestPermission(accessory, mPermissionIntent);
+		DialogInterface.OnClickListener mOnClickListener = new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				switch(which) {
+				case DialogInterface.BUTTON_POSITIVE:
+					mNavigationDrawerFragment.performItemClick(1);
+					break;
+				}
+			}
+		};
+		
+		mUSBConnectDialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
+							.setTitle(R.string.USBConnectDialog_forward_dialog_title)
+							.setMessage(R.string.USBConnectDialog_forward_dialog_content)
+							.setPositiveButton(R.string.confirm, mOnClickListener)
+							.setNegativeButton(R.string.cancel, mOnClickListener)
+							.create();
+		
+		mUsbConnectionStateListener = new OnUsbConnectionStateListener() {
+			@Override
+			public void onDisconnected() {
+				Toast.makeText(getBaseContext(), R.string.USBConnectDialog_detached_usb, Toast.LENGTH_SHORT).show();
+				mNavigationDrawerFragment.performItemClick(0);
+			}
+			
+			@Override
+			public void onConnected() {
+				if (mNavigationDrawerFragment.getCurrentTabPosition() == 1) {
+					ContentFragmentHolder.getInstance(1).refresh();
+					
+				} else if (mUSBConnectDialog != null)
+					mUSBConnectDialog.show();
+				
+			}
+		};
+		
+		mSynapseListener = new SynapsysListener(this) {
+			
+			@Override
+			public void onDetectingStateChanged(boolean enabled) {
+				super.onDetectingStateChanged(enabled);
+	
+				setProgressBarIndeterminateVisibility(enabled);
+			}
+			
+			@Override
+			public void onConnectedStateDetected(String address) {
+				super.onConnectedStateDetected(address);
+				
+				ContentFragmentHolder.getInstance(mNavigationDrawerFragment.getCurrentTabPosition()).refresh();
+			}
+		};
+		
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.d("MainActivity", "onResume");
+
+		// USB Ïó∞Í≤∞ Ïù¥Î≤§Ìä∏ Î∞úÏÉùÏãú, Ï≤òÎ¶¨Ìï† Î°úÏßÅ InterfaceÎ•º Îì±Î°ùÌïúÎã§.
+		UsbConnectReceiver.register(mApplication);
+		UsbConnectReceiver receiver = UsbConnectReceiver.getInstance();
+		if (receiver != null) 
+			receiver.setOnUsbConnectionStateListener(mUsbConnectionStateListener);
+		
+		
+		mApplication.getSynapseManager().setSynapsysListener(mSynapseListener);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Log.d("MainActivity", "onPause");
+		
+		mApplication.getSynapseManager().setSynapsysListener(null);
+		UsbConnectReceiver.unregister();
+	}
+	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		Log.d("MainActivity", "onDestroy");
 		
-		// Unregister USB EventReceiver.
-		USBConnectReceiver.unregister(this);
 	}
 
 	@Override
@@ -105,6 +177,11 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 							.commit();
 	}
 
+
+	/******************************************************************
+		METHODS
+	 ******************************************************************/
+	/** */
 	public void onSectionAttached(int number) {
 		switch (number) {
 		case 0:
@@ -137,7 +214,10 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
 		switch (item.getItemId()) {
-		
+		case R.id.menu_refresh:
+			mApplication.getSynapseManager().findConnectedAddress();
+			Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+			break;
 		}
 		
 		return super.onOptionsItemSelected(item);
@@ -150,4 +230,8 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		actionBar.setTitle(mTitle);
 	}
 
+	public NavigationDrawerFragment getNavigationDrawerFragment() {
+		return mNavigationDrawerFragment;
+	}
+	
 }

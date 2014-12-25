@@ -22,8 +22,8 @@ public class SettingFragment extends PreferenceFragment implements NavigationFra
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		addPreferencesFromResource(R.xml.preference_setting);
 	}
 	
 	@Override
@@ -42,6 +42,12 @@ public class SettingFragment extends PreferenceFragment implements NavigationFra
 	@Override
 	public int getNavigationOrder() {
 		return ORDER;
+	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

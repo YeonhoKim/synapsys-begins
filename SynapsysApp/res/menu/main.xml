@@ -3,13 +3,10 @@
     tools:context="org.kbssm.synapsys.MainActivity" >
 
     <item
-        android:id="@+id/action_example"
-        android:showAsAction="withText|ifRoom"
-        android:title="@string/action_example"/>
-    <item
-        android:id="@+id/action_settings"
+        android:id="@+id/menu_refresh"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        android:icon="@android:drawable/ic_menu_rotate"
+        android:showAsAction="ifRoom"
         android:title="@string/action_settings"/>
 
 </menu>

@@ -8,4 +8,6 @@ package org.kbssm.synapsys;
 public interface NavigationFragmentCallbacks {
 
 	int getNavigationOrder();
+
+	void refresh();
 }

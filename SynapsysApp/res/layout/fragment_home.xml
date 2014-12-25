@@ -9,17 +9,14 @@
     tools:context="org.kbssm.synapsys.MainActivity$PlaceholderFragment" >
 
     <TextView
-        android:id="@+id/section_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="HOME"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_marginTop="107dp"
+        android:text="@string/app_name"
+        android:textColor="#DEDEDE"
+        android:textSize="25sp" />
 
 </RelativeLayout>

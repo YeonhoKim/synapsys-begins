@@ -2,17 +2,55 @@
 <resources>
 
     <string name="app_name">Synapsys</string>
+    
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_streaming">StreamingInflowActivity</string>
     
     <string name="title_home_section">Home</string>
     <string name="title_usb_section">USB Connection</string>
     <string name="title_wireless_section">Wireless Connection</string>
     <string name="title_setting_section">Settings</string>
+    <string name="title_development">Developers</string>
     
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     
-    <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
 
+    <string name="detecting_address_dialog_title">Detecting Address...</string>
+    
+    <string name="USBConnectDialog_forward_dialog_title">USB DETECTED</string>
+    <string name="USBConnectDialog_forward_dialog_content">Do you want to forward to USBConnection?\nYou can handle more details with USB connection.</string>
+    <string name="USBConnectDialog_detached_usb">USB has been DETACHED.\nBack to HOME Section.</string>
+    
+    <string name="streaming_disconnect_toast_message">Streaming Disconnected.</string>
+    <string name="streaming_exit_locked_toast_message">After release the lock, you can exit.</string>
+    <string name="streaming_exit_toast_message">Press BACK button more to OUT.</string>
+    
+    <string name="streaming_menu_drawer_title">Multi-Displayer : </string>
+    
+    <string name="preference_usb_default_tethering_key">preference_key_usb_default_tethering</string>
+    <string name="preference_usb_default_tethering_title">Default Tethering Connection</string>
+    <string name="preference_usb_default_tethering_reverse_summary">You can use the network connected with PC like Ethernet or WiFi.</string>
+    <string name="preference_usb_default_tethering_common_summary">You can share your network with connected PC through Mobile or WiFi.</string> 
+    <string name="preference_usb_default_tethering_reverse_text">Reverse</string>
+    <string name="preference_usb_default_tethering_common_text">Common</string>
+    
+    <string name="preference_usb_default_connectionalert_key">preference_key_usb_default_connection_alert</string>
+    <string name="preference_usb_default_connectionalert_title">Default USB Connection Alertable</string>
+    <string name="preference_usb_default_connectionalert_summary">Set the option whether it alerts from dialog when USB connection events occur.</string>
+    
+    <string name="usb_card_connection_title">CONNECTION</string>
+    <string name="usb_card_connection_connected">CONNECTED</string>
+    <string name="usb_card_direction_title">DIRECTION</string>
+    <string name="usb_card_direction_inflow">WINDOWS >>> ANDROID</string>
+    <string name="usb_card_displayname_title">DISPLAY NAME</string>
+    <string name="usb_card_displayaddr_title">ADDRESS</string>
+    
+    <string name="fragment_wireless_warning">Wireless Connection\nis not supported yet :(\nWe will see you soon.</string>
+    
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    
+    <string name="ip_error">Wrong IP address</string>
 </resources>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+   <org.kbssm.synapsys.streaming.StreamingView
+        android:id="@+id/streaming_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" 
+        android:visibility="gone"/>
+    
+     <org.kbssm.synapsys.streaming.OldStreamingView 
+        android:id="@+id/streaming_mjpeg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <SlidingDrawer
+        android:id="@+id/streaming_menu_drawer"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_gravity="bottom"
+        android:content="@+id/content"
+        android:handle="@+id/handle" >
+
+        <Button
+            android:id="@+id/handle"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/streaming_menu_drawer_selector" />
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" 
+            android:orientation="horizontal"
+       		android:background="#80dbdbdb"
+            android:padding="5dp">
+
+            <TextView
+                android:id="@+id/streaming_menu_title"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="20dp"
+                android:gravity="center_vertical"
+                android:text="@string/streaming_menu_drawer_title" />
+                
+            <Button
+                android:id="@+id/button1"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_setting_section" />
+
+            <Button
+                android:id="@+id/button2"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_setting_section" />
+
+            <Space 
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"/>
+            
+            <ImageButton
+                android:id="@+id/streaming_menu_lockbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/streaming_menu_lockbtn_selector"
+                android:background="@android:color/transparent" />
+            
+        </LinearLayout>
+        
+    </SlidingDrawer>
+
+</FrameLayout>

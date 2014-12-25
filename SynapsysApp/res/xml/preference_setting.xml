@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/title_usb_section" >
+        
+        <SwitchPreference 
+            android:key="@string/preference_usb_default_tethering_key"
+            android:title="@string/preference_usb_default_tethering_title"
+            android:summaryOn="@string/preference_usb_default_tethering_reverse_summary"
+            android:summaryOff="@string/preference_usb_default_tethering_common_summary" 
+            android:switchTextOn="@string/preference_usb_default_tethering_reverse_text"
+            android:switchTextOff="@string/preference_usb_default_tethering_common_text"
+            android:defaultValue="true"
+            android:selectable="false"/>
+        
+        <CheckBoxPreference 
+            android:key="@string/preference_usb_default_connectionalert_key"
+            android:title="@string/preference_usb_default_connectionalert_title"
+            android:summary="@string/preference_usb_default_connectionalert_summary" 
+            android:defaultValue="true"/>
+        
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/title_development">
+        
+        <PreferenceScreen 
+            android:title="Yeonho.Kim"
+            android:summary="niruelo@gmail.com">
+        </PreferenceScreen>
+        
+        <PreferenceScreen
+            android:title="Minhwan.Jo"
+            android:summary="--@gmail.com">
+            
+        </PreferenceScreen>
+        
+        <PreferenceScreen
+            android:title="Daehyun.Jo"
+            android:summary="--@gmail.com">
+            
+        </PreferenceScreen>
+        
+    </PreferenceCategory>
+</PreferenceScreen>
