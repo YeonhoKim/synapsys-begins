@@ -1,4 +1,9 @@
-Synapsys
+Synapsys 
 ========
+Windows - Android Multi-Display Interaction Project.
 
-Cross Project for WinDroid with.
+2014.11 ~ 2014.12 : Windows Virtual Multi-Display Envrionment Implemented. 
+
+
+License
+========
