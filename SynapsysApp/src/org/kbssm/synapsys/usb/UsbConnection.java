@@ -1,5 +1,7 @@
 package org.kbssm.synapsys.usb;
 
+import java.io.Serializable;
+
 import org.kbssm.synapsys.R;
 
 
@@ -8,8 +10,10 @@ import org.kbssm.synapsys.R;
  * @author Yeonho.Kim
  *
  */
-public class UsbConnection {
+public class UsbConnection implements Serializable {
 
+	private static final long serialVersionUID = 1223187691298413624L;
+	
 	/**
 	 * 
 	 */
@@ -119,5 +123,16 @@ public class UsbConnection {
 		this.mDisplayAddress = displayAddress;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return hashCode() == o.hashCode();
+	}
+	
+	@Override
+	public int hashCode() {
+		if (mDisplayAddress != null)
+			return mDisplayAddress.hashCode();
+		return -1;
+	}
 	
 }

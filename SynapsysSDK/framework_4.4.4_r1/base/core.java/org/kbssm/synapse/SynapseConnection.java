@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import android.content.BroadcastReceiver;
@@ -31,11 +32,15 @@ class SynapseConnection extends BroadcastReceiver implements Runnable, ISynapse 
 	 */
 	private static final int CODE_DETECTING_STATE_CHANGED = 0xD5C;
 	/**
-	 *	IP 주소가 탐지되었을 때, 이벤트 코드. 
+	 *	연결된 IP 주소를 탐지하였을 때, 이벤트 코드. 
 	 */
 	private static final int CODE_CONNECTED_ADDRESS_DETECTED = 0xCAD;
 	/**
-	 *	IP 주소가 탐지되었을 때, 이벤트 코드. 
+	 *	연결되어있던 IP 주소가 해제되었음을 탐지하였을 때, 이벤트 코드. 
+	 */
+	private static final int CODE_DISCONNECTED_ADDRESS_DETECTED = 0xDAD;
+	/**
+	 * 
 	 */
 	private static final int CODE_UNCONNECTED_ADDRESS_PROCESSING = 0x0A7;
 	/**
@@ -92,8 +97,15 @@ class SynapseConnection extends BroadcastReceiver implements Runnable, ISynapse 
 			public void handleMessage(Message msg) {
 				switch (msg.what) {
 				case CODE_CONNECTED_ADDRESS_DETECTED:
-					if (mSynapseListener != null)
+					if (mSynapseListener != null) {
 						mSynapseListener.onConnectedStateDetected((String) msg.obj);
+						mSynapseListener.onDetectingStateChanged(false);
+					}
+					break;
+					
+				case CODE_DISCONNECTED_ADDRESS_DETECTED:
+					if (mSynapseListener != null)
+						mSynapseListener.onDisconnectedStateDetected((String) msg.obj);
 					break;
 					
 				case CODE_DETECTING_STATE_CHANGED:
@@ -102,8 +114,8 @@ class SynapseConnection extends BroadcastReceiver implements Runnable, ISynapse 
 					break;
 					
 				case CODE_UNCONNECTED_ADDRESS_PROCESSING:
-					mToast.setText((String) msg.obj);
-					mToast.show();
+					//mToast.setText((String) msg.obj);
+					//mToast.show();
 					break;
 				}
 			}
@@ -123,8 +135,8 @@ class SynapseConnection extends BroadcastReceiver implements Runnable, ISynapse 
 	 *  
 	 * @return
 	 */
-	public void findConnectedAddress() {
-		if (isDetecting)
+	public void findConnectedAddress(boolean force) {
+		if (!force && isDetecting || !isConnected)
 			return;
 		
 		synchronized (SynapseConnection.this) {
@@ -135,11 +147,13 @@ class SynapseConnection extends BroadcastReceiver implements Runnable, ISynapse 
 				public void run() {
 					for (int seq = ADDR_START; seq <= ADDR_END; seq++) {
 						String address = BASE_ADDRESS + seq;
+						String result = address + "@";	
 						
 						try {
 							Socket socket = new Socket();
 							socket.connect(new InetSocketAddress(address, INFLOW_SERVER_PORT + seq), DETECTING_SOCKET_TIMEOUT);
-							socket.close();
+							
+							result += getConnectedInfo(socket);
 							
 						} catch (SocketTimeoutException e) {
 							Message.obtain(mHandlerF,CODE_UNCONNECTED_ADDRESS_PROCESSING, "TIMEOUT > " + address).sendToTarget();
@@ -150,9 +164,16 @@ class SynapseConnection extends BroadcastReceiver implements Runnable, ISynapse 
 							continue;
 						}
 						
+						mTetheredIP = address;
+						
 						// Address detected!
-						Message.obtain(mHandlerF, CODE_CONNECTED_ADDRESS_DETECTED, mTetheredIP = address).sendToTarget();
-						break;
+						Message.obtain(mHandlerF, CODE_CONNECTED_ADDRESS_DETECTED, result).sendToTarget();
+						return;
+					}
+					
+					if (mTetheredIP != null) {
+						Message.obtain(mHandlerF, CODE_DISCONNECTED_ADDRESS_DETECTED, mTetheredIP).sendToTarget();
+						mTetheredIP = null;
 					}
 					
 					// End finding.
@@ -189,9 +210,9 @@ class SynapseConnection extends BroadcastReceiver implements Runnable, ISynapse 
 		ConnectivityManager mConnectivityManager = (ConnectivityManager) mContextF.getSystemService(Context.CONNECTIVITY_SERVICE);
 		for(String iface : mConnectivityManager.getTetheredIfaces())
 			if (iface != null && iface.contains("usb"))
-				return isConnected = true;
+				return true;
 		
-		return isConnected = false;
+		return false;
 	}
 
 	/**
@@ -199,6 +220,8 @@ class SynapseConnection extends BroadcastReceiver implements Runnable, ISynapse 
 	 */
 	public void destroy() {
 		insynapse();
+		
+		mContextF.unregisterReceiver(this);
 	}
 	
 	
@@ -281,5 +304,31 @@ class SynapseConnection extends BroadcastReceiver implements Runnable, ISynapse 
 
 	public void setSynapseListener(ISynapseListener listener) {
 		mSynapseListener = listener;
+	}
+	
+	public String getConnectedInfo(Socket socket) {
+		byte[] request = ByteBuffer.allocate(12)
+									.put("MM.&1CON".getBytes())
+									.putInt(129)
+									.array();
+		
+		byte[] response = new byte[1024];
+		byte[] header = new byte[12];
+		byte[] information = new byte[1012];
+		
+		try {
+			socket.getOutputStream().write(request);
+			socket.getInputStream().read(response);
+			socket.close();
+			
+			ByteBuffer.wrap(response).get(header).get(information);
+			return new String(information);
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 }

@@ -11,10 +11,9 @@ import android.content.Context;
  */
 public abstract class SynapsysListener implements ISynapseListener {
 
-	protected SynapsysApplication mAppF;
+	protected final SynapsysApplication mAppF;
 	
 	public SynapsysListener(Context context) {
-		
 		mAppF = (SynapsysApplication) context.getApplicationContext();
 		
 	}
@@ -22,6 +21,11 @@ public abstract class SynapsysListener implements ISynapseListener {
 	@Override
 	public void onConnectedStateDetected(String address) {
 		mAppF.onConnectedStateDetected(address);
+	}
+
+	@Override
+	public void onDisconnectedStateDetected(String address) {
+		mAppF.onDisconnectedStateDetected(address);
 	}
 	
 	@Override
@@ -33,4 +37,5 @@ public abstract class SynapsysListener implements ISynapseListener {
 	public void onDetectingStateChanged(boolean enabled) {
 		mAppF.onDetectingStateChanged(enabled);
 	}
+	
 }

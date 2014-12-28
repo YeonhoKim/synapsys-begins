@@ -15,13 +15,13 @@ public class ContentFragmentHolder {
 		HomeFragment home = new HomeFragment();
 		UsbConnectionFragment usb = new UsbConnectionFragment();
 		WirelessConnectionFragment wireless = new WirelessConnectionFragment();
-		SettingFragment setting = new SettingFragment();
+		//SettingFragment setting = new SettingFragment();
 		
 		sContentFragments = new NavigationFragmentCallbacks[]{
 			home,
 			usb,
-			wireless,
-			setting
+			wireless
+			//setting
 		};
 	}
 	

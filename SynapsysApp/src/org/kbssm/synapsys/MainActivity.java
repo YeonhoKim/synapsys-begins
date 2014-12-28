@@ -1,6 +1,5 @@
 package org.kbssm.synapsys;
 
-import org.kbssm.synapse.SynapseException;
 import org.kbssm.synapse.SynapseManager;
 import org.kbssm.synapsys.global.SynapsysApplication;
 import org.kbssm.synapsys.global.SynapsysListener;
@@ -11,7 +10,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -19,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 /**
@@ -65,8 +64,8 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
-		setProgressBarIndeterminate(true);
 		
 		mApplication = (SynapsysApplication) getApplication();
 		
@@ -109,7 +108,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 			}
 			
 			@Override
-			public void onConnected() {
+			public void onConnected(boolean rndisEnabled) {
 				if (mNavigationDrawerFragment.getCurrentTabPosition() == 1) {
 					ContentFragmentHolder.getInstance(1).refresh();
 					
@@ -134,6 +133,13 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 				
 				ContentFragmentHolder.getInstance(mNavigationDrawerFragment.getCurrentTabPosition()).refresh();
 			}
+			
+			@Override
+			public void onDisconnectedStateDetected(String address) {
+				super.onDisconnectedStateDetected(address);
+
+				ContentFragmentHolder.getInstance(mNavigationDrawerFragment.getCurrentTabPosition()).refresh();
+			}
 		};
 		
 	}
@@ -143,14 +149,15 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		super.onResume();
 		Log.d("MainActivity", "onResume");
 
-		// USB 연결 이벤트 발생시, 처리할 로직 Interface를 등록한다.
-		UsbConnectReceiver.register(mApplication);
 		UsbConnectReceiver receiver = UsbConnectReceiver.getInstance();
 		if (receiver != null) 
 			receiver.setOnUsbConnectionStateListener(mUsbConnectionStateListener);
 		
+		SynapseManager mManager = mApplication.getSynapseManager();
+		mManager.setSynapsysListener(mSynapseListener);
 		
-		mApplication.getSynapseManager().setSynapsysListener(mSynapseListener);
+		if (!mManager.isOnUsbTethering())
+			mManager.setUsbTethering(true);
 	}
 	
 	@Override
@@ -158,8 +165,12 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		super.onPause();
 		Log.d("MainActivity", "onPause");
 		
+
+		UsbConnectReceiver receiver = UsbConnectReceiver.getInstance();
+		if (receiver != null) 
+			receiver.setOnUsbConnectionStateListener(null);
+		
 		mApplication.getSynapseManager().setSynapsysListener(null);
-		UsbConnectReceiver.unregister();
 	}
 	
 	@Override
@@ -215,8 +226,7 @@ public class MainActivity extends Activity implements NavigationDrawerCallbacks 
 		
 		switch (item.getItemId()) {
 		case R.id.menu_refresh:
-			mApplication.getSynapseManager().findConnectedAddress();
-			Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+			mApplication.getSynapseManager().findConnectedAddress(true);
 			break;
 		}
 		

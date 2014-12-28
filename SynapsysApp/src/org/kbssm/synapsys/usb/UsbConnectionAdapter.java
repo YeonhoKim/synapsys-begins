@@ -131,7 +131,8 @@ public class UsbConnectionAdapter extends BaseAdapter implements OnItemClickList
 		switch (usbConn.getConnectionState()) {
 		case UsbConnection.STATE_CONNECTION_INFLOW:
 			Intent intent = new Intent(mContextF, StreamingInflowActivity.class);
-			intent.putExtra("ip", addrText.getText().toString());
+			intent.putExtra("connection", usbConn);
+			
 			mContextF.startActivity(intent);			
 			return;
 			

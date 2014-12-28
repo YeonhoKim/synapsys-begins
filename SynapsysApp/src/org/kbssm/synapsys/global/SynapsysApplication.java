@@ -41,13 +41,16 @@ public class SynapsysApplication extends Application implements ISynapseListener
 	
 	private Toast mToast;
 
-	private String mConnectedAddress;
+	private UsbConnection mConnectedConnection = null;
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
 		try {
+			// USB 연결 이벤트 발생시, 처리할 로직 Interface를 등록한다.
+			UsbConnectReceiver.register(this);
+			
 			mSynapseManager = SynapseManager.getInstance(this, this);
 
 			
@@ -76,6 +79,8 @@ public class SynapsysApplication extends Application implements ISynapseListener
 		
 		if (mSynapseManager != null)
 			mSynapseManager.destroy();
+
+		UsbConnectReceiver.unregister();
 	}
 
 	public boolean checkUSBConnected() {
@@ -85,52 +90,58 @@ public class SynapsysApplication extends Application implements ISynapseListener
 
 	
 	@Override
-	public void onConnected() {
-		//  USB가 연결되면, 자동으로 USB Tethering 작업을 수행한다.
-		mSynapseManager.setUsbTethering(true);
+	public void onConnected(boolean rndisEnabled) {
+		if (!rndisEnabled)
+			mSynapseManager.setUsbTethering(true);
 		 
 	}
 
 	@Override
 	public void onDisconnected() {
-
-	}
-
-	@Override
-	public void onDetectingStateChanged(boolean enabled) {
 		
 	}
 
 	@Override
-	public void onConnectedStateDetected(String address) {
-		mConnectedAddress = address;
+	public void onDetectingStateChanged(boolean started) { 
+		if (!started && mConnectedConnection == null)
+			requestToDetectIPdelayed(5000);
+			
+	}
+
+	@Override
+	public void onConnectedStateDetected(String result) {
+		String[] results = result.split("@");
+		
+		String address = results[0];
+		
 		
 		if (mStreamingManager != null)
 			mStreamingManager.setReady(address);
 		
-		mToast.setText("ADDRESS DETECTED! : " + address);
-		mToast.show();
+		mConnectedConnection = new UsbConnection(null, UsbConnection.STATE_CONNECTION_INFLOW);
+		mConnectedConnection.setDisplayAddress(address);
+		mConnectedConnection.setDisplayName(results[1]);
+		mConnectedConnection.setTitle(results[2] + "@" + results[3]);
 		
-		mUsbConnectionSet.add(new UsbConnection(null, UsbConnection.STATE_CONNECTION_INFLOW));
+		mUsbConnectionSet.add(mConnectedConnection);
 	}
 	
 	@Override
+	public void onDisconnectedStateDetected(String address) {
+		if (mConnectedConnection != null) {
+			if (mConnectedConnection.getDisplayAddress().equals(address)) {
+				mUsbConnectionSet.remove(mConnectedConnection);
+				mConnectedConnection = null;
+			}	
+		}
+	}
+	
+	
+	@Override
 	public void onUsbTetheredStateChanged(boolean enabled) {
-
-		mToast.setText("UsbTetheredStateChanged! : " + enabled);
-		mToast.show();
-		
 		if (enabled) {
-			// 연결된 PC의 IP 주소를 탐색하고, Streaming Service를 준비한다.
-			mHandler.postDelayed(new Runnable() {
-
-				@Override
-				public void run() {
-					mSynapseManager.findConnectedAddress();
-				}
-				
-			}, 1000);
-
+			requestToDetectIPdelayed(1000);
+			
 			// Streaming Service.
 			if (StreamingInflowActivity.IsTCPLegacyMode)
 				return;
@@ -140,12 +151,28 @@ public class SynapsysApplication extends Application implements ISynapseListener
 			
 			
 		} else {
+			mUsbConnectionSet.remove(mConnectedConnection);
+			mConnectedConnection = null;
+			
 			if (mStreamingManager != null) {
 				mStreamingManager.destroy();
 				mStreamingManager = null;
 			}
 			
 		}
+	}
+	
+	private void requestToDetectIPdelayed(long time) {
+
+		// 연결된 PC의 IP 주소를 탐색하고, Streaming Service를 준비한다.
+		mHandler.postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				mSynapseManager.findConnectedAddress(false);
+			}
+			
+		}, time);
 	}
 
 	
@@ -165,6 +192,5 @@ public class SynapsysApplication extends Application implements ISynapseListener
 	public final Collection<UsbConnection> getConnections() {
 		return mUsbConnectionSet;
 	}
-	
-	
+
 }

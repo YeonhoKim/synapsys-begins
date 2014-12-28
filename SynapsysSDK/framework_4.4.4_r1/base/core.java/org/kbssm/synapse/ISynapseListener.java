@@ -14,4 +14,6 @@ public interface ISynapseListener {
 	
 	void onConnectedStateDetected(String address);
 	
+	void onDisconnectedStateDetected(String address);
+	
 }

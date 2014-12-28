@@ -1,8 +1,5 @@
 package org.kbssm.synapsys.usb;
 
-import java.util.Collection;
-import java.util.HashMap;
-
 import org.kbssm.synapsys.global.SynapsysApplication;
 
 import android.content.BroadcastReceiver;
@@ -72,7 +69,7 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 	 */
 	private final SynapsysApplication mApplicationF;
 	
-	private boolean mRndisEnabled;
+	private boolean mRndisPrevious = false;
 	
 	private UsbConnectReceiver(SynapsysApplication context) {
 		mApplicationF = context;
@@ -88,32 +85,26 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 		}
 		
 		if (ACTION_USB_STATE_CHANGED.equals(action)) {
-            mRndisEnabled = intent.getBooleanExtra(UsbManager.USB_FUNCTION_RNDIS, false);
             
+            boolean rndisCurrent = intent.getBooleanExtra(UsbManager.USB_FUNCTION_RNDIS, false);
             boolean connected = intent.getBooleanExtra("connected", false);
             
-            Toast.makeText(mApplicationF, "RndisEnable :" + mRndisEnabled +"\nConnected :" + connected, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(mApplicationF, "RndisEnable :" + rndisCurrent+"\nPrevRndis :" + mRndisPrevious +"\nConnected :" + connected , Toast.LENGTH_SHORT).show();
             
-            if (!mRndisEnabled && connected) {
-        			// 테더링 설정이 되지 않은 상태에서 USB연결을 인식할 때,
-            	
-            	mApplicationF.onConnected();
+            if (connected) {
+            	mApplicationF.onConnected(rndisCurrent);
             	
             	if (mConnectionStateListener != null)
-            		mConnectionStateListener.onConnected();
+            		mConnectionStateListener.onConnected(rndisCurrent);
             	
-            } else if (mRndisEnabled && !connected) {
-            			// 테더링 설정된 상태에서 USB연결이 해제될 때,
-            	//mApplicationF.getSynapseManager().setUsbTethering(false);
-            	
-            } else if (!mRndisEnabled && !connected) {
-    				// 테더링 설정이 안 된 상태에서 USB연결이 해제될 때,
-            	
+            } else {
             	mApplicationF.onDisconnected();
             	
             	if (mConnectionStateListener != null)
             		mConnectionStateListener.onDisconnected();
             }
+            
+            mRndisPrevious = rndisCurrent;
             
 			/*if (mConnectionStateListener != null) {
 				if (connected) {
@@ -149,7 +140,7 @@ public class UsbConnectReceiver extends BroadcastReceiver {
 	 */
 	public interface OnUsbConnectionStateListener {
 		
-		public void onConnected();
+		public void onConnected(boolean rndisEnabled);
 		
 		public void onDisconnected();
 	}

@@ -29,11 +29,10 @@
             android:layout_height="40dp"
             android:background="@drawable/streaming_menu_drawer_selector" />
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="match_parent" 
-            android:orientation="horizontal"
        		android:background="#80dbdbdb"
             android:padding="5dp">
 
@@ -41,38 +40,48 @@
                 android:id="@+id/streaming_menu_title"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="10dp"
                 android:layout_marginRight="20dp"
                 android:gravity="center_vertical"
-                android:text="@string/streaming_menu_drawer_title" />
-                
-            <Button
-                android:id="@+id/button1"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/title_setting_section" />
-
-            <Button
-                android:id="@+id/button2"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/title_setting_section" />
-
-            <Space 
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"/>
+                android:text="@string/streaming_menu_drawer_title"
+                android:textSize="20sp" />
             
             <ImageButton
                 android:id="@+id/streaming_menu_lockbtn"
-                android:layout_width="wrap_content"
+                android:layout_width="60dp"
                 android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
                 android:scaleType="fitCenter"
                 android:src="@drawable/streaming_menu_lockbtn_selector"
                 android:background="@android:color/transparent" />
             
-        </LinearLayout>
+            <TextView
+                android:id="@+id/streaming_menu_resolution"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@id/streaming_menu_lockbtn"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:gravity="center"
+                android:textSize="12sp" />
+            
+            <TextView
+                android:id="@+id/streaming_menu_fps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_toLeftOf="@id/streaming_menu_lockbtn"
+                android:layout_below="@id/streaming_menu_resolution"
+                android:layout_alignLeft="@id/streaming_menu_resolution"
+                android:layout_alignRight="@id/streaming_menu_resolution"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:gravity="center"
+                android:textSize="12sp"  />
+                
+        </RelativeLayout>
         
     </SlidingDrawer>
 

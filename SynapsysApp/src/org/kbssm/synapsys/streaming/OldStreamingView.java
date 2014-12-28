@@ -13,16 +13,16 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -45,18 +45,16 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 
 	private MjpegViewThread thread;
 	private MjpegInputStream mIn = null;
-	private boolean showFps = false;
+	
 	private boolean mRun = false;
 	private boolean surfaceDone = false;
+	
 	private Paint overlayPaint;
-	private int overlayTextColor;
-	private int overlayBackgroundColor;
-	private int ovlPos;
 	private int dispWidth;
 	private int dispHeight;
 	private int displayMode;
 	private boolean resume = false;
-
+	
 	private static Context context;
 	private static Toast mToast;
 
@@ -64,7 +62,6 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 		private SurfaceHolder mSurfaceHolder;
 		private int frameCounter = 0;
 		private long start;
-		private Bitmap ovl;
 
 		public MjpegViewThread(SurfaceHolder surfaceHolder, Context context) {
 			mSurfaceHolder = surfaceHolder;
@@ -103,33 +100,14 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 			}
 		}
 
-		private Bitmap makeFpsOverlay(Paint p, String text) {
-			Rect b = new Rect();
-			p.getTextBounds(text, 0, text.length(), b);
-			int bwidth = b.width() + 2;
-			int bheight = b.height() + 2;
-			Bitmap bm = Bitmap.createBitmap(bwidth, bheight,
-					Bitmap.Config.ARGB_8888);
-			Canvas c = new Canvas(bm);
-			p.setColor(overlayBackgroundColor);
-			c.drawRect(0, 0, bwidth, bheight, p);
-			p.setColor(overlayTextColor);
-			c.drawText(text, -b.left + 1,
-					(bheight / 2) - ((p.ascent() + p.descent()) / 2) + 1, p);
-			return bm;
-		}
-
 		public void run() {
 			start = System.currentTimeMillis();
-			PorterDuffXfermode mode = new PorterDuffXfermode(
-					PorterDuff.Mode.DST_OVER);
+			
 			Bitmap bm;
-			int width;
-			int height;
 			Rect destRect;
 			Canvas c = null;
 			Paint p = new Paint();
-			String fps = "";
+			
 			while (mRun) {
 				if (surfaceDone) {
 					try {
@@ -141,28 +119,24 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 										bm.getHeight());
 								c.drawColor(Color.BLACK);
 								c.drawBitmap(bm, null, destRect, p);
-								if (showFps) {
-									p.setXfermode(mode);
-									if (ovl != null) {
-										height = ((ovlPos & 1) == 1) ? destRect.top
-												: destRect.bottom
-														- ovl.getHeight();
-										width = ((ovlPos & 8) == 8) ? destRect.left
-												: destRect.right
-														- ovl.getWidth();
-										c.drawBitmap(ovl, width, height, null);
-									}
-									p.setXfermode(null);
-									frameCounter++;
-									if ((System.currentTimeMillis() - start) >= 1000) {
-										fps = String.valueOf(frameCounter)
-												+ "fps";
-										frameCounter = 0;
-										start = System.currentTimeMillis();
-										ovl = makeFpsOverlay(overlayPaint, fps);
-									}
+								
+								
+								frameCounter++;
+								if ((System.currentTimeMillis() - start) >= 1000) {
+									String fps = String.valueOf(frameCounter) + " FPS";
+									start = System.currentTimeMillis();
+									frameCounter = 0;
+
+									Message.obtain( ((StreamingInflowActivity) mContext).mHandler, 
+											StreamingInflowActivity.CODE_FPS_DATA_UPDATE, fps).sendToTarget();
 								}
-							} catch (IOException e) {
+								
+								
+							} catch (Exception e) {
+								//Message.obtain( ((StreamingInflowActivity) mContext).mHandler, 
+								//		StreamingInflowActivity.CODE_SHOW_TOAST, "Display Lost!").sendToTarget();
+								surfaceDone = false;
+								mRun = false;
 							}
 						}
 					} finally {
@@ -187,9 +161,6 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 			overlayPaint.setTextAlign(Paint.Align.LEFT);
 			overlayPaint.setTextSize(12);
 			overlayPaint.setTypeface(Typeface.DEFAULT);
-			overlayTextColor = Color.WHITE;
-			overlayBackgroundColor = Color.BLACK;
-			ovlPos = OldStreamingView.POSITION_LOWER_RIGHT;
 			displayMode = OldStreamingView.SIZE_FULLSCREEN;
 			dispWidth = getWidth();
 			dispHeight = getHeight();
@@ -198,27 +169,33 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 	}
 
 	public void startPlayback() {
-		if (mIn != null) {
+		if (mIn != null && !mRun) {
 			mRun = true;
 			thread.start();
 		}
 	}
 
 	public void resumePlayback() {
-		mRun = true;
-		init(context);
-		Log.i("AppLog", "resume");
-		thread.start();
+		if (!mRun) {
+			mRun = true;
+			init(context);
+			
+			Log.i("AppLog", "resume");
+			thread.start();
+		}
 	}
 
 	public void stopPlayback() {
-		mRun = false;
-		boolean retry = true;
-		while (retry) {
-			try {
-				thread.join();
-				retry = false;
-			} catch (InterruptedException e) {
+		if (mRun) {
+			mRun = false;
+			boolean retry = true;
+			while (retry) {
+				try {
+					thread.interrupt();
+					thread.join();
+					retry = false;
+				} catch (InterruptedException e) {
+				}
 			}
 		}
 	}
@@ -246,10 +223,6 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 		surfaceDone = true;
 	}
 
-	public void showFps(boolean b) {
-		showFps = b;
-	}
-
 	public void setSource(MjpegInputStream source) {
 		mIn = source;
 		startPlayback();
@@ -257,18 +230,6 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 
 	public void setOverlayPaint(Paint p) {
 		overlayPaint = p;
-	}
-
-	public void setOverlayTextColor(int c) {
-		overlayTextColor = c;
-	}
-
-	public void setOverlayBackgroundColor(int c) {
-		overlayBackgroundColor = c;
-	}
-
-	public void setOverlayPosition(int p) {
-		ovlPos = p;
 	}
 
 	public void setDisplayMode(int s) {
@@ -346,14 +307,6 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 			final byte[] frameData = new byte[mContentLength];
 			skipBytes(headerLen);
 			readFully(frameData);
-			
-			// TOAST
-			/*((StreamingInflowActivity) context).handler.post(new Runnable() {
-				@Override
-				public void run() {
-					Toast.makeText(context, "DATA : " + frameData, Toast.LENGTH_SHORT).show();
-				}
-			});*/
 			
 			return BitmapFactory.decodeStream(new ByteArrayInputStream(
 					frameData));

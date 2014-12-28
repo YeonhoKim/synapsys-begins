@@ -92,9 +92,9 @@ public final class SynapseManager implements ISynapse {
 		return false;
 	}
 	
-	public void findConnectedAddress() {
+	public void findConnectedAddress(boolean force) {
 		if (mConnection != null)
-			mConnection.findConnectedAddress();
+			mConnection.findConnectedAddress(force);
 	}
 	
 
@@ -172,7 +172,7 @@ public final class SynapseManager implements ISynapse {
 	}
 	
 	public void setSynapsysListener(ISynapseListener listener) {
-		mListener = listener;
+		mConnection.setSynapseListener(mListener = listener);
 	}
 	
 	public String getTetheredAddress() {

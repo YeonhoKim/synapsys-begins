@@ -17,6 +17,13 @@
     
     <string name="action_settings">Settings</string>
 
+    <string name="home_description1">1. Launch the Synapsys.</string>
+    <string name="home_description2">2. Connect to PC with USB.</string>
+    <string name="home_description3">3. Start the WINDOWS application\n and press a "Add monitor" button.</string>
+    <string name="home_description4">4. Waiting to find an IP of the connecting PC.</string>
+    <string name="home_description5">5. When it is detected, press the information card.</string>
+    <string name="home_description6">Enjoy your multi-display on Android!! :)</string>
+    
     <string name="detecting_address_dialog_title">Detecting Address...</string>
     
     <string name="USBConnectDialog_forward_dialog_title">USB DETECTED</string>
@@ -26,6 +33,7 @@
     <string name="streaming_disconnect_toast_message">Streaming Disconnected.</string>
     <string name="streaming_exit_locked_toast_message">After release the lock, you can exit.</string>
     <string name="streaming_exit_toast_message">Press BACK button more to OUT.</string>
+    <string name="streaming_ready_dialog_message">Loading...\nWaiting for response</string>
     
     <string name="streaming_menu_drawer_title">Multi-Displayer : </string>
     
