@@ -131,6 +131,11 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 											StreamingInflowActivity.CODE_FPS_DATA_UPDATE, fps).sendToTarget();
 								}
 								
+							} catch (IOException e) {
+								surfaceDone = false;
+								mRun = false;
+								
+								((Activity) mContext).finish();
 								
 							} catch (Exception e) {
 								//Message.obtain( ((StreamingInflowActivity) mContext).mHandler, 
@@ -176,7 +181,7 @@ public class OldStreamingView extends SurfaceView implements SurfaceHolder.Callb
 	}
 
 	public void resumePlayback() {
-		if (!mRun) {
+		if (!mRun && thread!= null && !thread.isAlive()) {
 			mRun = true;
 			init(context);
 			

@@ -33,6 +33,7 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 	
 	static final int CODE_SHOW_TOAST = 0x11;
 	static final int CODE_CONNECT_STREAMING = 0x22;
+	static final int CODE_QUIT_PROGRESS = 0x24;
 	static final int CODE_FPS_DATA_UPDATE = 0x33;
 	
 	private SynapsysApplication mSynapsysApp;
@@ -78,8 +79,12 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 				break;
 				
 			case CODE_CONNECT_STREAMING:
-				mProgressDialog.show();
 				new Thread(StreamingInflowActivity.this).start();
+				mProgressDialog.show();
+				break;
+				
+			case CODE_QUIT_PROGRESS:
+				mProgressDialog.dismiss();
 				break;
 				
 			case CODE_FPS_DATA_UPDATE:
@@ -173,7 +178,7 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 			// Deprecated if launched.
 			mOldStreamingView = (OldStreamingView) findViewById(R.id.streaming_mjpeg);
 			mOldStreamingView.setVisibility(View.VISIBLE);
-			mOldStreamingView.startPlayback();
+			//mOldStreamingView.startPlayback();
 			
 			Message.obtain(mHandler, CODE_CONNECT_STREAMING).sendToTarget();
 			return;
@@ -215,7 +220,7 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 		if (receiver != null) 
 			receiver.setOnUsbConnectionStateListener(null);
 		
-		mSynapsysApp.getSynapseManager().setSynapsysListener(null);
+		//mSynapsysApp.getSynapseManager().setSynapsysListener(null);
 		
 		if (IsTCPLegacyMode) {
 			// Deprecated if launched.
@@ -284,6 +289,7 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 			mStreamingSocket = new Socket(mServerIP, mServerPort);
 			mStreamingSocket.setTcpNoDelay(true);
 
+			mHandler.sendEmptyMessage(CODE_QUIT_PROGRESS);
 			
 			byte[] request = ByteBuffer.allocate(12)
 					.put("MM.&2STR".getBytes())
@@ -303,6 +309,8 @@ public class StreamingInflowActivity extends Activity implements View.OnClickLis
 	}
 	
 	private void exit() {
+		mHandler.removeMessages(CODE_CONNECT_STREAMING);
+		
 		try {
 			mStreamingSocket.close();
 			
